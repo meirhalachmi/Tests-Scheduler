@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import {Sleep} from "../../utils/utils";
 
 const ColumnContainer = styled.div`
   margin: 10px;
@@ -50,7 +51,8 @@ const getItemStyle = (isDragging, draggableStyle) => ({
     margin: `0 0 ${grid}px 0`,
 
     // change background colour if dragging
-    background: isDragging ? 'lightgreen' : 'grey',
+    background: isDragging ? 'lightgreen' : '#1d3d69',
+    color: isDragging ? 'black' : 'white',
 
     // styles we need to apply on draggables
     ...draggableStyle
@@ -62,17 +64,53 @@ const getListStyle = isDraggingOver => ({
     width: 250
 });
 
+const getGroupedSubjectsRequest = new Request('http://localhost:5000/groupedSubjects');
+const getSubjectsRequest = new Request('http://localhost:5000/subjects');
+
+
 class Subjects extends Component {
-    state = {
-        lists: Array(getItems(10), getItems(5, 10)),
-        titles: ['מקצועות ליבה  ', 'אשכול מגמות']
+
+    constructor(props: P, context: any) {
+        super(props, context);
+        this.state = {
+            lists: [[]],
+            titles: ['מקצועות ליבה']
+        }
+        fetch(getGroupedSubjectsRequest)
+            .then(response => response.json())
+            .then(data => {
+                this.initialGroupedSubjects = data;
+            }).then(() => {
+            fetch(getSubjectsRequest)
+                .then(response => response.json())
+                .then(data => {
+                    this.subjects = new Map(data.map(v => [v.id, v.name]));
+                }).then(
+                () => {
+                    console.log(this.subjects.get(4))
+                    this.initialNoGroup = this.initialGroupedSubjects['no_group'];
+                    this.initialGroups = this.initialGroupedSubjects['groups'];
+                    console.log(this.subjects)
+                    console.log(this.groupToListItem(this.initialNoGroup))
+                    console.log(Array(this.groupToListItem(this.initialNoGroup)))
+                    console.log([getItems(5)])
+                    // Sleep(1000);
+                     this.setState( {
+                            lists: Array(this.groupToListItem(this.initialNoGroup)),
+                            // titles: ['מקצועות ליבה']
+                            // lists: [getItems(5)]
+                        }
+                    )
+                }
+            )
+        })
     };
 
-    /**
-     * A semi-generic way to handle multiple lists. Matches
-     * the IDs of the droppable container to the names of the
-     * source arrays stored in the state.
-     */
+    groupToListItem = group => {
+        return group.map((item) => ({id: item.toString(), content: this.subjects.get(item)}))
+    }
+
+
     addList = () => {
         const lists = this.state.lists.concat([[]]);
         const titles = this.state.titles.concat('אשכול מגמות');
@@ -107,6 +145,7 @@ class Subjects extends Component {
         const { source, destination } = result;
 
         // dropped outside the list
+
         if (!destination) {
             return;
         }
@@ -132,7 +171,7 @@ class Subjects extends Component {
     // Normally you would want to split things out into separate components.
     getColumnContainer(index, title) {
         return <ColumnContainer key={index}>
-            <SupTitle>{title} {index > 0 &&<FontAwesomeIcon icon={faTrashAlt} onClick={()=>{this.removeList(index)}}/>}</SupTitle>
+            <SupTitle>{title} {index > 0 &&<span><FontAwesomeIcon icon={faTrashAlt} onClick={()=>{this.removeList(index)}}/></span>}</SupTitle>
 
             <Droppable droppableId={index.toString()}>
                 {(provided, snapshot) => (
