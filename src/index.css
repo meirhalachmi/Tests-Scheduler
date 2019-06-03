@@ -11,3 +11,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+input{
+    direction: rtl;
+}
+
+.vertical-checkbox{
+    text-align:center;
+    display: block;
+}
+
+*>,
+[dir="rtl"] {
+  .direction-ltr {
+    direction: ltr;
+    text-align: left;
+    &[class*="col-"] {
+      float: left !important;
+    }
+    code { opacity:1; }
+  }
+}
+
+* { direction: rtl; }
