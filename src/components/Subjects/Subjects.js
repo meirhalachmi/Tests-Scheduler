@@ -5,7 +5,8 @@ import styled from "styled-components";
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
-import {Sleep} from "../../utils/utils";
+import axios from 'axios/index';
+import {fillArray, Sleep} from "../../utils/utils";
 
 const ColumnContainer = styled.div`
   margin: 10px;
@@ -51,7 +52,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
     margin: `0 0 ${grid}px 0`,
 
     // change background colour if dragging
-    background: isDragging ? 'lightgreen' : '#1d3d69',
+    background: isDragging ? 'lightgreen' : 'grey',
     color: isDragging ? 'black' : 'white',
 
     // styles we need to apply on draggables
@@ -72,6 +73,7 @@ class Subjects extends Component {
 
     constructor(props: P, context: any) {
         super(props, context);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
             lists: [[]],
             titles: ['מקצועות ליבה']
@@ -87,18 +89,14 @@ class Subjects extends Component {
                     this.subjects = new Map(data.map(v => [v.id, v.name]));
                 }).then(
                 () => {
-                    console.log(this.subjects.get(4))
                     this.initialNoGroup = this.initialGroupedSubjects['no_group'];
                     this.initialGroups = this.initialGroupedSubjects['groups'];
-                    console.log(this.subjects)
-                    console.log(this.groupToListItem(this.initialNoGroup))
-                    console.log(Array(this.groupToListItem(this.initialNoGroup)))
-                    console.log([getItems(5)])
-                    // Sleep(1000);
-                     this.setState( {
-                            lists: Array(this.groupToListItem(this.initialNoGroup)),
-                            // titles: ['מקצועות ליבה']
-                            // lists: [getItems(5)]
+                    console.log(this.initialGroupedSubjects)
+                    this.setState( {
+                            lists: Array(this.groupToListItem(this.initialNoGroup)).concat(
+                                this.initialGroups.map(group => this.groupToListItem(group))
+                            ),
+                            titles: ['מקצועות ליבה'].concat(fillArray('אשכול מגמות', this.initialGroups.length))
                         }
                     )
                 }
@@ -107,7 +105,7 @@ class Subjects extends Component {
     };
 
     groupToListItem = group => {
-        return group.map((item) => ({id: item.toString(), content: this.subjects.get(item)}))
+        return group.map((item) => ({id: item, content: this.subjects.get(item)}))
     }
 
 
@@ -204,6 +202,25 @@ class Subjects extends Component {
         </ColumnContainer>;
     }
 
+    handleSubmit(e) {
+        e.preventDefault();
+        let newGroups = this.state.lists.map(gr => gr.map(v => v.id));
+        let no_pars = newGroups.shift()
+        let par_groups = newGroups.length === 0 ? [[]] : newGroups;
+        let msg = {
+            no_parallels: [no_pars],
+            parallel_groups: [par_groups]
+        };
+
+        console.log(msg);
+        axios.post('http://localhost:5000/groupedSubjects', msg)
+            .then(response => response.json())
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+
     render() {
         return (
             <div>
@@ -216,6 +233,9 @@ class Subjects extends Component {
                     </DragDropContext>
                     <ColumnContainer><Button onClick={()=>{this.addList()}}>הוסף אשכול</Button></ColumnContainer>
                 </div>
+                <Button onClick={this.handleSubmit}>
+                    Send
+                </Button>
             </div>
         );
     }

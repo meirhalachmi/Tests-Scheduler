@@ -10,7 +10,7 @@ import App from './components/app/App';
 import * as serviceWorker from './serviceWorker';
 import ScheduleCalendar from "./components/ScheduleCalendar/ScehduleCalendar";
 import Subjects from "./components/Subjects/Subjects"
-ReactDOM.render(<Subjects />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
