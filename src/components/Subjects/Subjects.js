@@ -91,7 +91,7 @@ class Subjects extends Component {
                 () => {
                     this.initialNoGroup = this.initialGroupedSubjects['no_group'];
                     this.initialGroups = this.initialGroupedSubjects['groups'];
-                    console.log(this.initialGroupedSubjects)
+                    // console.log(this.initialGroupedSubjects)
                     this.setState( {
                             lists: Array(this.groupToListItem(this.initialNoGroup)).concat(
                                 this.initialGroups.map(group => this.groupToListItem(group))
