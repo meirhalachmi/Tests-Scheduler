@@ -9,15 +9,16 @@ import Subjects from "../Subjects/Subjects";
 import AddSubjects from "../AddSubjects/AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScehduleCalendar";
 import AddTests from "../AddTests/AddTests";
+import Home from "../Home/Home";
 
-function App() {
+export default function App() {
     return (
         <Container>
             <Router>
                 <div style={{alignItems: ""}}>
                     <nav>
                         <Navbar bg="light" variant="light">
-                            <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+                            <Navbar.Brand href="/home">Navbar</Navbar.Brand>
                             <Nav className="mr-auto">
                                 <Nav.Link href="/addsubjects">מקצועות</Nav.Link>
                                 <Nav.Link href="/subjects">אשכולות</Nav.Link>
@@ -28,6 +29,7 @@ function App() {
                     </nav>
                     {/*<hr />*/}
                     <Switch>
+                        <Route path="/home" component={Home} />
                         <Route path="/addsubjects" component={AddSubjects} />
                         <Route path="/subjects" component={Subjects} />
                         <Route path="/calendar" component={ScheduleCalendar} />
@@ -39,54 +41,3 @@ function App() {
     );
 }
 
-function Home() {
-    return (
-        <div>
-            <h2>Home</h2>
-        </div>
-    );
-}
-
-function About() {
-    return (
-        <div>
-            <h2>About</h2>
-        </div>
-    );
-}
-
-function Topics({ match }) {
-    return (
-        <div>
-            <h2>Topics</h2>
-            <ul>
-                <li>
-                    <Link to={`${match.url}/rendering`}>Rendering with React</Link>
-                </li>
-                <li>
-                    <Link to={`${match.url}/components`}>Components</Link>
-                </li>
-                <li>
-                    <Link to={`${match.url}/props-v-state`}>Props v. State</Link>
-                </li>
-            </ul>
-
-            <Route path={`${match.path}/:topicId`} component={Topic} />
-            <Route
-                exact
-                path={match.path}
-                render={() => <h3>Please select a topic.</h3>}
-            />
-        </div>
-    );
-}
-
-function Topic({ match }) {
-    return (
-        <div>
-            <h3>{match.params.topicId}</h3>
-        </div>
-    );
-}
-
-export default App;

@@ -1,7 +1,6 @@
 import React, {Suspense, useState} from "react";
-import {Col, Form, Button} from 'react-bootstrap';
-import { useFetch } from 'react-hooks-fetch';
-import {DisplayRemoteData, range} from "../../utils/utils";
+import {Button, Col, Form} from 'react-bootstrap';
+import {DisplayRemoteData, range, sortByName} from "../../utils/utils";
 import axios from "axios";
 
 
@@ -55,10 +54,6 @@ const daysInWeek = {
     4: "רביעי",
     5: "חמישי",
     6: "שישי"
-}
-
-function sortByName(list) {
-    return list.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
 
 export default function AddTests() {

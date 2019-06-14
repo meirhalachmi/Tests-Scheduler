@@ -28,3 +28,7 @@ export const DisplayRemoteData = (props) => {
     }
     return data.map(props.parserFunction)
 };
+
+export function sortByName(list) {
+    return list.sort((a, b) => (a.name > b.name) ? 1 : -1);
+}
