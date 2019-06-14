@@ -1,20 +1,9 @@
 import React, {Suspense, useState} from "react";
 import {Col, Form, Button} from 'react-bootstrap';
 import { useFetch } from 'react-hooks-fetch';
-import {range} from "../../utils/utils";
+import {DisplayRemoteData, range} from "../../utils/utils";
 import axios from "axios";
 
-const Err = ({ error }) => <span>Error:{error.message}</span>;
-
-const DisplayRemoteData = (props) => {
-    let { error, data } = useFetch(props.url);
-    if (error) return <Err error={error} />;
-    if (!data) return null;
-    if (props.preProcess){
-        data = props.preProcess(data);
-    }
-    return data.map(props.parserFunction)
-};
 
 const useForm = (initialState) => {
     const [inputs, setInputs] = useState(initialState);
