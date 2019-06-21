@@ -157,7 +157,7 @@ class Subjects extends Component {
                 source,
                 destination
             );
-            const lists = Array.from(this.state.lists)
+            const lists = [...this.state.lists]
             lists[source.droppableId] = result[source.droppableId]
             lists[destination.droppableId] = result[destination.droppableId]
             this.setState({
