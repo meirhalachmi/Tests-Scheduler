@@ -3,6 +3,7 @@ import axios from 'axios/index';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import {Sleep} from '../../utils/utils.js';
+import { connect } from 'react-redux'
 
 
 class AddSubject extends React.Component {
@@ -14,25 +15,26 @@ class AddSubject extends React.Component {
     }
 
     componentDidMount() {
-        this.getSubjects();
+        // this.getSubjects();
     }
 
-    getSubjects() {
-        const myRequest = new Request('http://localhost:5000/subjects');
-        fetch(myRequest)
-            .then(response => response.json())
-            .then(data => {
-                this.setState({ items: data })
-            })
-    }
+    // getSubjects() {
+    //     const myRequest = new Request('http://localhost:5000/subjects');
+    //     fetch(myRequest)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             this.setState({ items: data })
+    //         })
+    // }
 
     render() {
+        console.log(this.props, this.state.items)
         return (
             <Container>
                 <div>
                     <h1>נושאים</h1>
                     <ul>
-                        {this.state.items.map(subject => {
+                        {this.props.subjects.map(subject => {
                             return <li key={`movie-${subject.id}`}>{subject.name}</li>
                         })}
                     </ul>
@@ -83,4 +85,8 @@ class AddSubject extends React.Component {
 
 }
 
-export default AddSubject;
+const mapStateToProps = (state) => ({
+    subjects : state.subjects.items
+})
+
+export default connect(mapStateToProps)(AddSubject);

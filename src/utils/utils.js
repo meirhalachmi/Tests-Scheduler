@@ -6,12 +6,12 @@ export function Sleep(milliseconds) {
 }
 
 export function fillArray(value, length) {
-  return Array.from({ length }, () => value);
+    return Array.from({ length }, () => value);
 }
 
 
 export function range(start, end) {
-  return Array(end - start + 1).fill().map((_, idx) => start + idx)
+    return Array(end - start + 1).fill().map((_, idx) => start + idx)
 }
 
 const Err = ({ error }) => <span>Error:{error.message}</span>;

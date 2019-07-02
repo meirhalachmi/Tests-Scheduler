@@ -2,6 +2,7 @@ import React, {Suspense, useState} from "react";
 import {Button, Col, Form} from 'react-bootstrap';
 import {DisplayRemoteData, range, sortByName} from "../../utils/utils";
 import axios from "axios";
+import {connect} from "react-redux";
 
 
 const useForm = (initialState) => {
@@ -56,149 +57,141 @@ const daysInWeek = {
     6: "שישי"
 }
 
-export default function AddTests() {
-    const DEFAULT_GAP = 30; // TODO: Make input
-    const {inputs, refresh, handleInputChange, handleInputChangeInArray, handleSubmit} = useForm(
-        {
-            daysGap: DEFAULT_GAP,
-            difficulty: 5, //TODO: Add as a form control
-            minDate: "2019-04-01",
-            maxDate: "2019-04-30",
-            subject: 1, //FIXME: Doesn't really control the initial visual state,
-            numOfTests: 2,
-            numOfOptionalTimes: 1,
-            participatingClasses: [],
-            optionalDaysInWeek: ["1"],
-            optionalStartHours: [1],
-            optionalEndHours: [3]
-        },
-    );
+class AddTestsClass extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {numOfOptionalTimes: 1}
+    }
+    render() {
+        return (
+            <div style={{width: "50%"}}>
+                <h1>הוספת מבחן</h1>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Row>
+                        <Col md={6}>
+                            <Form.Group controlId="formGridSubject">
+                                <Form.Label>נושא המבחן</Form.Label>
+                                <Form.Control as="select" name="subject">
+                                    {this.props.subjects.map((s) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group controlId="formGridClasses">
+                                <Form.Label>כיתות משתתפות</Form.Label>
+                                <Form.Control as="select" multiple name="classes"> //TODO: less hacky
+                                    {this.props.classes.map((s) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
 
-    return (
-        <div style={{width: "50%"}}>
-            <h1>הוספת מבחן</h1>
-            <Form onSubmit={handleSubmit}>
-                <Form.Row>
-                    <Col md={6}>
-                        <Form.Group controlId="formGridSubject">
-                            <Form.Label>נושא המבחן</Form.Label>
-                            <Form.Control as="select" name="subject" onChange={handleInputChange}>
-                                <Suspense fallback={<option></option>}>
-                                    <DisplayRemoteData url="http://localhost:5000/subjects"
-                                                       preProcess={sortByName}
-                                                       parserFunction={(s) => (<option selected={s.id===inputs.subject} key={s.id} value={s.id}>{s.name}</option>)}/> //FIXME: Not secure (using the db-id as the value)
-                                </Suspense>
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                        <Form.Group controlId="formGridClasses">
-                            <Form.Label>כיתות משתתפות</Form.Label>
-                            <Form.Control as="select" multiple name="classes" onChange={(e)=>{e.persist(); inputs.participatingClasses=Array.from(e.target.selectedOptions).map(c => c.value)}}> //TODO: less hacky
-                                <Suspense fallback={<option></option>}>
-                                    <DisplayRemoteData url="http://localhost:5000/classes"
-                                                       preProcess={sortByName}
-                                                       parserFunction={(s) => (<option key={s.id} value={s.id}>{s.name}</option>)}/> //FIXME: Not secure (using the db-id as the value)
-                                </Suspense>
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-                </Form.Row>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Form.Row>
 
-                <Form.Row>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>מספר מבחנים</Form.Label>
-                            <Form.Control as="select" name="numOfTests" value={inputs.numOfTests} onChange={handleInputChange}>
-                                <option>1</option>
-                                <option>2</option>
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>מרווח מינימלי בין מבחנים</Form.Label>
-                            <Form.Control type="number" name="daysGap" step={1} value={inputs.daysGap} onChange={handleInputChange}
-                                          min={2} max={365} //TODO: Change max to the number of days in the interval
-                            />
-                        </Form.Group>
-                    </Col>
-                </Form.Row>
-                <Form.Row>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>תאריך מינימלי</Form.Label>
-                            <Form.Control type="date" name="minDate" value={inputs.minDate} onChange={handleInputChange}/>
-                        </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>תאריך מקסימלי</Form.Label>
-                            <Form.Control type="date" name="maxDate" value={inputs.maxDate} onChange={handleInputChange}/>
-                        </Form.Group>
-                    </Col>
-                </Form.Row>
+                    <Form.Row>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>מספר מבחנים</Form.Label>
+                                <Form.Control as="select" name="numOfTests">
+                                    <option>1</option>
+                                    <option>2</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>מרווח מינימלי בין מבחנים</Form.Label>
+                                <Form.Control type="number" name="daysGap" defaultValue={30} step={1}
+                                              min={2} max={365} //TODO: Change max to the number of days in the interval
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Form.Row>
+                    <Form.Row>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>תאריך מינימלי</Form.Label>
+                                <Form.Control type="date" name="minDate"/>
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>תאריך מקסימלי</Form.Label>
+                                <Form.Control type="date" name="maxDate"/>
+                            </Form.Group>
+                        </Col>
+                    </Form.Row>
 
-                {range(0, inputs.numOfOptionalTimes-1).map(i => {
-                    return (
-                        <Form.Row>
-                            <Col md={4}>
-                                <Form.Group>
-                                    {i === 0 && <Form.Label>יום</Form.Label>}
-                                    <Form.Control accessKey={i} as="select" name={"optionalDaysInWeek"} value={inputs.optionalDaysInWeek[i]} onChange={handleInputChangeInArray}>
-                                        {Object.entries(daysInWeek).map(entry => (
-                                            <option value={entry[0]} key={entry[0]}>{entry[1]}</option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group>
-                                    {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
-                                    <Form.Control accessKey={i} type="number" name={"optionalStartHours"} step={1} value={inputs.optionalStartHours[i]} onChange={handleInputChangeInArray}
-                                                  min={0} max={9} //TODO: Change max to the number of days in the interval
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group>
-                                    {i === 0 && <Form.Label>שעת סיום</Form.Label>}
-                                    <Form.Control accessKey={i} type="number" name={"optionalEndHours"} step={1} value={inputs.optionalEndHours[i]} onChange={handleInputChangeInArray}
-                                                  min={0} max={9} //TODO: Change max to the number of days in the interval
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Form.Row>
-                    )
-                })}
-                <Form.Row>
-                    <Col md={3}>
-                        <Button onClick={(event) => {
-                            inputs.numOfOptionalTimes += 1;
-                            inputs.optionalDaysInWeek.push("ראשון");
-                            inputs.optionalStartHours.push(1);
-                            inputs.optionalEndHours.push(3);
-                            refresh(event);
-                        }}>הוסף מועד</Button>
-                    </Col>
-                    <Col md = {3}>
-                        {inputs.numOfOptionalTimes > 1 &&
-                        <Button onClick={(event) => {
-                            inputs.numOfOptionalTimes -= 1;
-                            inputs.optionalDaysInWeek.splice(-1, 1);
-                            inputs.optionalStartHours.splice(-1, 1);
-                            inputs.optionalEndHours.splice(-1, 1);
-                            refresh(event);
-                        }}>מחק מועד</Button>}
-                    </Col>
-                </Form.Row>
-                <Form.Row>
-                    <Col md={3}>
-                        <Button onClick={handleSubmit}>שלח</Button>
-                    </Col>
-                </Form.Row>
+                    {range(0, this.state.numOfOptionalTimes-1).map(i => {
+                        return (
+                            <Form.Row>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        {i === 0 && <Form.Label>יום</Form.Label>}
+                                        <Form.Control accessKey={i} as="select" name={"optionalDaysInWeek"}>
+                                            {Object.entries(daysInWeek).map(entry => (
+                                                <option value={entry[0]} key={entry[0]}>{entry[1]}</option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
+                                        <Form.Control accessKey={i} type="number" name={"optionalStartHours"} defaultValue={0} step={1}
+                                                      min={0} max={9} //TODO: Change max to the number of days in the interval
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        {i === 0 && <Form.Label>שעת סיום</Form.Label>}
+                                        <Form.Control accessKey={i} type="number" name={"optionalEndHours"} step={1} defaultValue={9}
+                                                      min={0} max={9} //TODO: Change max to the number of days in the interval
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Form.Row>
+                        )
+                    })}
 
-            </Form>
-        </div>
-    )
+                    <Form.Row>
+                        <Col md={3}>
+                            <Button onClick={(event) => {
+                                this.setState({numOfOptionalTimes: this.state.numOfOptionalTimes + 1});
+                                // refresh(event);
+                            }}>הוסף מועד</Button>
+                        </Col>
+                        <Col md = {3}>
+                            {this.state.numOfOptionalTimes > 1 &&
+                            <Button onClick={(event) => {
+                                this.setState({numOfOptionalTimes: this.state.numOfOptionalTimes - 1})
+                            }}>מחק מועד</Button>}
+                        </Col>
+                    </Form.Row>
+
+                    <Form.Row>
+                        <Col md={3}>
+                            <Button type="Submit">שלח</Button>
+                        </Col>
+                    </Form.Row>
+                </Form>
+            </div>
+        )
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+        window.alert('TODO')
+    }
+
 }
+
+const mapStateToProps = (state) => ({
+    subjects : state.subjects.items,
+    classes : state.classes.items
+})
+export default connect(mapStateToProps)(AddTestsClass);

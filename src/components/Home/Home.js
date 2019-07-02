@@ -1,5 +1,5 @@
-import React, {Component, Suspense, useState} from "react";
-import {DisplayRemoteData, range, sortByName} from "../../utils/utils";
+import React, {Component, Suspense} from "react";
+import {DisplayRemoteData, sortByName} from "../../utils/utils";
 
 class ApiList extends Component<{ parserFunction: (s?: any) => any }> {
     render() {
@@ -7,19 +7,20 @@ class ApiList extends Component<{ parserFunction: (s?: any) => any }> {
             <h1>{this.props.name}</h1>
             <ul>
                 <Suspense fallback={<li></li>}>
-                    <DisplayRemoteData url={this.props.url}
-                                       preProcess={sortByName}
-                                       parserFunction={(s) => (
-                                           <div>
-                                               <li>{s.name}</li>
+                    <DisplayRemoteData
+                        url={this.props.url}
+                        preProcess={sortByName}
+                        parserFunction={(s) => (
+                            <div>
+                                <li>{s.name}</li>
 
-                                               <ul>
-                                                   {Object.entries(s).map(i => (
-                                                       i[0] !== "name" && <li>{i[0]} : {i[1]}</li>
-                                                   ))}
-                                               </ul>
-                                           </div>
-                                       )}/>
+                                <ul>
+                                    {Object.entries(s).map(i => (
+                                        i[0] !== "name" && <li>{i[0]} : {i[1]}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}/>
                 </Suspense>
             </ul>
         </div>;
