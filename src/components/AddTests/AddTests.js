@@ -60,6 +60,7 @@ const daysInWeek = {
 class AddTestsClass extends React.Component{
     constructor(props) {
         super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {numOfOptionalTimes: 1}
     }
     render() {
@@ -81,7 +82,7 @@ class AddTestsClass extends React.Component{
                         <Col md={6}>
                             <Form.Group controlId="formGridClasses">
                                 <Form.Label>כיתות משתתפות</Form.Label>
-                                <Form.Control as="select" multiple name="classes"> //TODO: less hacky
+                                <Form.Control as="select" multiple name="classes">
                                     {this.props.classes.map((s) => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
                                     ))}
@@ -131,7 +132,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>יום</Form.Label>}
-                                        <Form.Control accessKey={i} as="select" name={"optionalDaysInWeek"}>
+                                        <Form.Control key={i} as="select" name={"optionalDaysInWeek" + i.toString()}>
                                             {Object.entries(daysInWeek).map(entry => (
                                                 <option value={entry[0]} key={entry[0]}>{entry[1]}</option>
                                             ))}
@@ -141,7 +142,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
-                                        <Form.Control accessKey={i} type="number" name={"optionalStartHours"} defaultValue={0} step={1}
+                                        <Form.Control key={i} type="number" name={"optionalStartHours" + i.toString()} defaultValue={0} step={1}
                                                       min={0} max={9} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>
@@ -149,7 +150,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת סיום</Form.Label>}
-                                        <Form.Control accessKey={i} type="number" name={"optionalEndHours"} step={1} defaultValue={9}
+                                        <Form.Control key={i} type="number" name={"optionalEndHours" + i.toString()} step={1} defaultValue={9}
                                                       min={0} max={9} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>
@@ -162,7 +163,6 @@ class AddTestsClass extends React.Component{
                         <Col md={3}>
                             <Button onClick={(event) => {
                                 this.setState({numOfOptionalTimes: this.state.numOfOptionalTimes + 1});
-                                // refresh(event);
                             }}>הוסף מועד</Button>
                         </Col>
                         <Col md = {3}>
@@ -185,7 +185,12 @@ class AddTestsClass extends React.Component{
 
     handleSubmit(e) {
         e.preventDefault();
-        window.alert('TODO')
+        const msg = {
+            subject: e.target.subject.value,
+             classes:  [...e.target.classes.options].filter(o => o.selected).map(o => o.value),
+        }
+        console.log(msg)
+        // window.alert('TODO')
     }
 
 }

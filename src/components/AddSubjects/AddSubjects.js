@@ -18,14 +18,6 @@ class AddSubject extends React.Component {
         // this.getSubjects();
     }
 
-    // getSubjects() {
-    //     const myRequest = new Request('http://localhost:5000/subjects');
-    //     fetch(myRequest)
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             this.setState({ items: data })
-    //         })
-    // }
 
     render() {
         console.log(this.props, this.state.items)
