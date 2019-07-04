@@ -108,8 +108,8 @@ class AddBlockers extends React.Component{
 
         const msg = {
             name: e.target.name.value,
-            participatingClasses:  [...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value),
-            participatingSubjects:  [...e.target.participatingSubjects.options].filter(o => o.selected).map(o => o.value),
+            participatingClasses:  [[...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value)],
+            participatingSubjects:  [[...e.target.participatingSubjects.options].filter(o => o.selected).map(o => o.value)],
             startDates: [range(0, this.state.numOfInstances-1)
                 .map( i => e.target['startDate' + i].value)],
             endDates: [range(0, this.state.numOfInstances-1)
