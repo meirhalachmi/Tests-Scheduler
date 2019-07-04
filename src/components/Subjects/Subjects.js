@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios/index';
-import {fillArray, Sleep} from "../../utils/utils";
+import {fillArray   } from "../../utils/utils";
 
 const ColumnContainer = styled.div`
   margin: 10px;
@@ -19,13 +19,6 @@ const ColumnContainer = styled.div`
 const SupTitle = styled.div`
   padding: 10px;
 `;
-
-// fake data generator
-const getItems = (count, offset = 0) =>
-    Array.from({ length: count }, (v, k) => k).map(k => ({
-        id: `item-${k + offset}`,
-        content: `item ${k + offset}`
-    }));
 
 /**
  * Moves an item from one list to another list.

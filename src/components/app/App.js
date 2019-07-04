@@ -6,12 +6,13 @@ import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
 import './App.css'
 import Subjects from "../Subjects/Subjects";
-import AddSubjects from "../AddSubjects/AddSubjects";
+import AddSubjects from "../AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScehduleCalendar";
-import AddTests from "../AddTests/AddTests";
+import AddTests from "../AddTests";
 import Home from "../Home/Home";
 import {fetchClasses, fetchSubjects} from "../../actions";
 import PropTypes from "prop-types";
+import AddBlockers from "../AddBlockers";
 
 class AsyncApp extends Component{
     componentDidMount(): void {
@@ -33,6 +34,7 @@ class AsyncApp extends Component{
                                     <Nav.Link href="/subjects">אשכולות</Nav.Link>
                                     <Nav.Link href="/calendar">לוח שנה</Nav.Link>
                                     <Nav.Link href="/addtests">הגדרת מבחנים</Nav.Link>
+                                    <Nav.Link href="/addblockers">הגדרת אילוצים</Nav.Link>
                                 </Nav>
                             </Navbar>
                         </nav>
@@ -43,6 +45,7 @@ class AsyncApp extends Component{
                             <Route path="/subjects" component={Subjects}/>
                             <Route path="/calendar" component={ScheduleCalendar}/>
                             <Route path="/addtests" component={AddTests}/>
+                            <Route path="/addblockers" component={AddBlockers}/>
                         </Switch>
                     </div>
                 </Router>

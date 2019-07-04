@@ -1,53 +1,8 @@
-import React, {Suspense, useState} from "react";
+import React from "react";
 import {Button, Col, Form} from 'react-bootstrap';
-import {DisplayRemoteData, range, sortByName} from "../../utils/utils";
+import {range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
-
-
-const useForm = (initialState) => {
-    const [inputs, setInputs] = useState(initialState);
-    const refresh = (event) => {
-        event.persist();
-        setInputs(inputs => ({...inputs}))
-    }
-    const handleSubmit = (event) => {
-        if (event) {
-            event.preventDefault();
-        }
-        const msg = Object.assign({}, inputs);
-        msg.optionalDaysInWeek = [inputs.optionalDaysInWeek]
-        msg.optionalStartHours = [inputs.optionalStartHours]
-        msg.optionalEndHours = [inputs.optionalEndHours]
-        msg.participatingClasses = [inputs.participatingClasses]
-        axios.post('http://localhost:5000/tests', msg)
-            .then(response => response.json())
-            .catch(function (error) {
-                console.log(error);
-            });
-
-    }
-    const handleInputChange = (event) => {
-        event.persist();
-        setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
-        console.log(event)
-        console.log(inputs)
-    }
-    const handleInputChangeInArray = (event) => {
-        event.persist();
-        let ar = inputs[event.target.name];
-        ar.splice(parseInt(event.target.accessKey), 1, event.target.value)
-        setInputs(inputs => ({...inputs, [event.target.name]: ar}));
-    }
-    return {
-        refresh,
-        handleSubmit,
-        handleInputChange,
-        handleInputChangeInArray,
-        inputs
-    };
-}
-
 const daysInWeek = {
     1: "ראשון",
     2: "שני",
@@ -57,11 +12,11 @@ const daysInWeek = {
     6: "שישי"
 }
 
-class AddTestsClass extends React.Component{
+class AddTests extends React.Component{
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {numOfOptionalTimes: 1}
+        this.state = {numOfOptionalTimes: 1, numOfTests: 1}
     }
     render() {
         return (
@@ -72,7 +27,7 @@ class AddTestsClass extends React.Component{
                         <Col md={6}>
                             <Form.Group controlId="formGridSubject">
                                 <Form.Label>נושא המבחן</Form.Label>
-                                <Form.Control as="select" name="subject">
+                                <Form.Control required as="select" name="subject">
                                     {this.props.subjects.map((s) => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
                                     ))}
@@ -82,7 +37,7 @@ class AddTestsClass extends React.Component{
                         <Col md={6}>
                             <Form.Group controlId="formGridClasses">
                                 <Form.Label>כיתות משתתפות</Form.Label>
-                                <Form.Control as="select" multiple name="classes">
+                                <Form.Control required as="select" multiple name="participatingClasses">
                                     {this.props.classes.map((s) => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
                                     ))}
@@ -96,32 +51,37 @@ class AddTestsClass extends React.Component{
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>מספר מבחנים</Form.Label>
-                                <Form.Control as="select" name="numOfTests">
-                                    <option>1</option>
-                                    <option>2</option>
+                                <Form.Control required as="select" name="numOfTests" onChange={(e) => {
+                                    this.setState({numOfTests: e.target.value})
+                                }}>
+                                    <option value={1}>1</option>
+                                    <option value={2}>2</option>
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                        <Col md={6}>
-                            <Form.Group>
-                                <Form.Label>מרווח מינימלי בין מבחנים</Form.Label>
-                                <Form.Control type="number" name="daysGap" defaultValue={30} step={1}
-                                              min={2} max={365} //TODO: Change max to the number of days in the interval
-                                />
-                            </Form.Group>
-                        </Col>
+                        {this.state.numOfTests > 1 && (
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>מרווח מינימלי בין מבחנים</Form.Label>
+                                    <Form.Control required type="number" name="daysGap" defaultValue={30} step={1}
+                                                  min={2} max={365} //TODO: Change max to the number of days in the interval
+                                    />
+                                </Form.Group>
+                            </Col>
+                        )}
+
                     </Form.Row>
                     <Form.Row>
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מינימלי</Form.Label>
-                                <Form.Control type="date" name="minDate"/>
+                                <Form.Control required type="date" name="minDate"/>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מקסימלי</Form.Label>
-                                <Form.Control type="date" name="maxDate"/>
+                                <Form.Control required type="date" name="maxDate"/>
                             </Form.Group>
                         </Col>
                     </Form.Row>
@@ -132,7 +92,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>יום</Form.Label>}
-                                        <Form.Control key={i} as="select" name={"optionalDaysInWeek" + i.toString()}>
+                                        <Form.Control required key={i} as="select" name={"optionalDaysInWeek" + i.toString()}>
                                             {Object.entries(daysInWeek).map(entry => (
                                                 <option value={entry[0]} key={entry[0]}>{entry[1]}</option>
                                             ))}
@@ -142,7 +102,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
-                                        <Form.Control key={i} type="number" name={"optionalStartHours" + i.toString()} defaultValue={0} step={1}
+                                        <Form.Control required key={i} type="number" name={"optionalStartHours" + i.toString()} defaultValue={0} step={1}
                                                       min={0} max={9} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>
@@ -150,7 +110,7 @@ class AddTestsClass extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת סיום</Form.Label>}
-                                        <Form.Control key={i} type="number" name={"optionalEndHours" + i.toString()} step={1} defaultValue={9}
+                                        <Form.Control requiredkey={i} type="number" name={"optionalEndHours" + i.toString()} step={1} defaultValue={9}
                                                       min={0} max={9} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>
@@ -185,12 +145,27 @@ class AddTestsClass extends React.Component{
 
     handleSubmit(e) {
         e.preventDefault();
+
         const msg = {
             subject: e.target.subject.value,
-             classes:  [...e.target.classes.options].filter(o => o.selected).map(o => o.value),
+            participatingClasses:  [...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value),
+            numOfTests: e.target.numOfTests.value,
+            daysGap: this.state.numOfTests > 1 ? e.target.daysGap.value : 0,
+            minDate: e.target.minDate.value,
+            maxDate: e.target.maxDate.value,
+            optionalDaysInWeek: range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalDaysInWeek' + i].value),
+            optionalStartHours: range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalStartHours' + i].value),
+            optionalEndHours: range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalEndHours' + i].value),
+            difficulty: 5, //TODO
         }
         console.log(msg)
-        // window.alert('TODO')
+        axios.post('http://localhost:5000/tests', msg)
+            .catch(function (error) {
+                console.error(error);
+            })
     }
 
 }
@@ -199,4 +174,4 @@ const mapStateToProps = (state) => ({
     subjects : state.subjects.items,
     classes : state.classes.items
 })
-export default connect(mapStateToProps)(AddTestsClass);
+export default connect(mapStateToProps)(AddTests);
