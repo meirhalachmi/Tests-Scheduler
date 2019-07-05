@@ -148,17 +148,17 @@ class AddTests extends React.Component{
 
         const msg = {
             subject: e.target.subject.value,
-            participatingClasses:  [...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value),
+            participatingClasses:  [[...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value)],
             numOfTests: e.target.numOfTests.value,
             daysGap: this.state.numOfTests > 1 ? e.target.daysGap.value : 0,
             minDate: e.target.minDate.value,
             maxDate: e.target.maxDate.value,
-            optionalDaysInWeek: range(0, this.state.numOfOptionalTimes-1)
-                .map( i => e.target['optionalDaysInWeek' + i].value),
-            optionalStartHours: range(0, this.state.numOfOptionalTimes-1)
-                .map( i => e.target['optionalStartHours' + i].value),
-            optionalEndHours: range(0, this.state.numOfOptionalTimes-1)
-                .map( i => e.target['optionalEndHours' + i].value),
+            optionalDaysInWeek: [range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalDaysInWeek' + i].value)],
+            optionalStartHours: [range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalStartHours' + i].value)],
+            optionalEndHours: [range(0, this.state.numOfOptionalTimes-1)
+                .map( i => e.target['optionalEndHours' + i].value)],
             difficulty: 5, //TODO
         }
         console.log(msg)
