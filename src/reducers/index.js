@@ -32,5 +32,6 @@ function ReducerCreator(name){
 
 export default combineReducers({
     subjects: ReducerCreator('Subjects'),
-    classes : ReducerCreator('Classes')
+    classes : ReducerCreator('Classes'),
+    blockers : ReducerCreator('Blockers')
 })

@@ -10,7 +10,7 @@ import AddSubjects from "../AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScehduleCalendar";
 import AddTests from "../AddTests";
 import Home from "../Home/Home";
-import {fetchClasses, fetchSubjects} from "../../actions";
+import {fetchBlockers, fetchClasses, fetchSubjects} from "../../actions";
 import PropTypes from "prop-types";
 import AddBlockers from "../AddBlockers";
 
@@ -19,6 +19,7 @@ class AsyncApp extends Component{
         const {dispatch} = this.props
         dispatch(fetchSubjects())
         dispatch(fetchClasses())
+        dispatch(fetchBlockers())
     }
 
     render() {
