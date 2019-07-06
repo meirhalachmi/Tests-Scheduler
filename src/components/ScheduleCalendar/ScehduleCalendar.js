@@ -50,7 +50,7 @@ class ScheduleCalendar extends Component {
         let date = new Date()
         date.setHours(0,0,0,0)
         this.state = {
-            daysToColor: [date.getTime()]
+            daysToColor: []
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
@@ -65,17 +65,24 @@ class ScheduleCalendar extends Component {
         const links = [];
 
         props.tests.map((test, ind) => {
+            console.log('dict',props.classesDict)
             links.push(
                 <a key={ind} href="#" style={styles.sidebarLink} onClick={(e) => {
-                    let date = new Date(test.startDates[0]);
-                    date.setHours(0,0,0,0);
-                    this.setState({
-                        daysToColor: [...this.state.daysToColor,
-                        date.getTime()
-                        ]
-                    })
+                    fetch('http://localhost:5000/finddate?testid='+test.id.toString())
+                        .then(response => response.json())
+                        .then(res => res.map(date => {
+                            let d = new Date(date);
+                            d.setHours(0,0,0,0);
+                            return d.getTime()
+                        }))
+                        .then(res =>
+                            this.setState({
+                                daysToColor: res
+                            })
+
+                        )
                 }}>
-                    {test.name}
+                    {test.name} - {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
                 </a>
             )
         })
@@ -112,7 +119,7 @@ class ScheduleCalendar extends Component {
 
 
     render() {
-        const sidebar = <this.SidebarContent tests={this.props.blockers}/>;
+        const sidebar = <this.SidebarContent tests={this.props.tests} classesDict={this.props.classesDict}/>;
         const sidebarProps = {
             sidebar,
             docked: true,
@@ -160,15 +167,20 @@ const mapStateToProps = (state) => ({
     subjects : state.subjects.items,
     classes : state.classes.items,
     blockers: state.blockers.items,
-    events: state.blockers.items.map(blocker => {
-        return {
-            title: blocker.name,
-            start: new Date(blocker.startDates[0]),
-            end: new Date(blocker.endDates[0]),
-            type: 'blocker'
-        }
-    })
-
+    tests: state.tests.items,
+    classesDict: state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {}),
+    testsDict: state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {}),
+    events: [
+        ...
+            state.blockers.items.map(blocker => {
+                return {
+                    title: blocker.name,
+                    start: new Date(blocker.startDates[0]),
+                    end: new Date(blocker.endDates[0]),
+                    type: 'blocker'
+                }
+            }),
+    ]
 })
 
 export default connect(mapStateToProps)(ScheduleCalendar);

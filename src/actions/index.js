@@ -31,6 +31,7 @@ function FetchActionCreator(name, url) {
 export const fetchSubjects = FetchActionCreator('Subjects', 'http://localhost:5000/subjects')
 export const fetchClasses = FetchActionCreator('Classes', 'http://localhost:5000/classes')
 export const fetchBlockers = FetchActionCreator('Blockers', 'http://localhost:5000/blockers')
+export const fetchTests = FetchActionCreator('Tests', 'http://localhost:5000/tests')
 
 
 
