@@ -57,7 +57,7 @@ class ScheduleCalendar extends Component {
 
         this.state = {
             daysToColor: [],
-            selectedTest: []
+            selectedTest: null
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
@@ -105,15 +105,14 @@ class ScheduleCalendar extends Component {
 
             )
         })
-        console.log(this.state.selectedTest)
         let list = (
             <List
                 items={items}
-                selected={this.state.selectedTest}
+                selected={[this.state.selectedTest]}
                 disabled={[]}
                 multiple={false}
                 onChange={(selected) => {
-                    this.setState({selectedTest: [selected]})
+                    this.setState({selectedTest: selected})
                     fetch('http://localhost:5000/finddate?testid='+props.tests[selected].id.toString())
                         .then(response => response.json())
                         .then(res => res.map(date => {
