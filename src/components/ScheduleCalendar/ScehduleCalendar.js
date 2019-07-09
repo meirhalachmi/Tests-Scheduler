@@ -6,6 +6,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "react-sidebar";
 
 import {connect} from "react-redux";
+import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
 
 const localizer = BigCalendar.momentLocalizer(moment);
@@ -43,14 +44,20 @@ function Event({ event }) {
         </div>
     )
 }
+
+function parseDateString(date) {
+    let d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime()
+}
+
 class ScheduleCalendar extends Component {
     constructor(props) {
         super(props);
 
-        let date = new Date()
-        date.setHours(0,0,0,0)
         this.state = {
-            daysToColor: []
+            daysToColor: [],
+            selectedTest: []
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
@@ -64,16 +71,53 @@ class ScheduleCalendar extends Component {
 
         const links = [];
 
+        let items = []
+
         props.tests.map((test, ind) => {
-            console.log('dict',props.classesDict)
-            links.push(
-                <a key={ind} href="#" style={styles.sidebarLink} onClick={(e) => {
-                    fetch('http://localhost:5000/finddate?testid='+test.id.toString())
+
+
+
+            items.push(
+                (<div className="test">
+                    <div className="name">{test.name}</div>
+                    <div className="classes">
+                        {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
+                    </div>
+                </div>)
+                // <div key={ind} onClick={(e) => {
+                //     fetch('http://localhost:5000/finddate?testid='+test.id.toString())
+                //         .then(response => response.json())
+                //         .then(res => res.map(date => {
+                //             return parseDateString(date);
+                //         }))
+                //         .then(res =>
+                //             this.setState({
+                //                 daysToColor: res
+                //             })
+                //
+                //         )
+                // }}>
+                //     <div className="test">
+                //         <div className="name">{test.name}</div>
+                //         <div className="classes">{test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}</div>
+                //     </div>
+                // </div>
+
+            )
+        })
+        console.log(this.state.selectedTest)
+        let list = (
+            <List
+                items={items}
+                selected={this.state.selectedTest}
+                disabled={[]}
+                multiple={false}
+                onChange={(selected) => {
+                    this.setState({selectedTest: [selected]})
+                    fetch('http://localhost:5000/finddate?testid='+props.tests[selected].id.toString())
                         .then(response => response.json())
                         .then(res => res.map(date => {
-                            let d = new Date(date);
-                            d.setHours(0,0,0,0);
-                            return d.getTime()
+                            return parseDateString(date);
                         }))
                         .then(res =>
                             this.setState({
@@ -81,14 +125,12 @@ class ScheduleCalendar extends Component {
                             })
 
                         )
-                }}>
-                    {test.name} - {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
-                </a>
-            )
-        })
+                }}
+            />)
 
         return (
             <MaterialTitlePanel title="מבחנים" style={style}>
+                {list}
                 <div style={styles.content}>
                     {/*<a href="index.html" style={styles.sidebarLink}>*/}
                     {/*    Home*/}
@@ -98,6 +140,7 @@ class ScheduleCalendar extends Component {
                     {/*</a>*/}
                     {/*<div style={styles.divider} />*/}
                     {links}
+
                 </div>
             </MaterialTitlePanel>
         );
@@ -139,6 +182,7 @@ class ScheduleCalendar extends Component {
                     <div style={styles.content}>
 
                         <BigCalendar
+                            selectable
                             localizer={localizer}
                             defaultDate={new Date()}
                             defaultView="month"
@@ -148,11 +192,12 @@ class ScheduleCalendar extends Component {
                             startAccessor="start"
                             endAccessor="end"
                             onSelectEvent={(event, e) => {console.log(event)}}
+                            onSelectSlot={(slotInfo) => console.log(slotInfo['start'])}
                             components={{
                                 event: Event
                             }}
                             dayPropGetter={this.customDayPropGetter}
-
+                            rtl={true}
 
                         />
                     </div>

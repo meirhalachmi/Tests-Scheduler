@@ -4,12 +4,12 @@ import {range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 const daysInWeek = {
-    1: "ראשון",
-    2: "שני",
-    3: "שלישי",
-    4: "רביעי",
-    5: "חמישי",
-    6: "שישי"
+    0: "ראשון",
+    1: "שני",
+    2: "שלישי",
+    3: "רביעי",
+    4: "חמישי",
+    5: "שישי"
 }
 
 class AddTests extends React.Component{
@@ -161,7 +161,6 @@ class AddTests extends React.Component{
                 .map( i => e.target['optionalEndHours' + i].value)],
             difficulty: 5, //TODO
         }
-        console.log(msg)
         axios.post('http://localhost:5000/tests', msg)
             .catch(function (error) {
                 console.error(error);

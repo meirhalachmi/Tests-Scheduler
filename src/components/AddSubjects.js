@@ -20,7 +20,6 @@ class AddSubject extends React.Component {
 
 
     render() {
-        console.log(this.props, this.state.items)
         return (
             <Container>
                 <div>

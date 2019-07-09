@@ -205,7 +205,6 @@ class Subjects extends Component {
             parallel_groups: [par_groups]
         };
 
-        console.log(msg);
         axios.post('http://localhost:5000/groupedSubjects', msg)
             .then(response => response.json())
             .catch(function (error) {
