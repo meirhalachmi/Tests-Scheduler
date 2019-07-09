@@ -29,7 +29,7 @@ const styles = {
         backgroundColor: "#757575"
     },
     content: {
-        padding: "16px",
+        // padding: "16px",
         // height: "100%",
         backgroundColor: "white"
     }
@@ -56,7 +56,7 @@ class ScheduleCalendar extends Component {
         super(props);
 
         this.state = {
-            daysToColor: [],
+            optionalDays: [],
             selectedTest: null
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
@@ -74,9 +74,6 @@ class ScheduleCalendar extends Component {
         let items = []
 
         props.tests.map((test, ind) => {
-
-
-
             items.push(
                 (<div className="test">
                     <div className="name">{test.name}</div>
@@ -84,25 +81,6 @@ class ScheduleCalendar extends Component {
                         {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
                     </div>
                 </div>)
-                // <div key={ind} onClick={(e) => {
-                //     fetch('http://localhost:5000/finddate?testid='+test.id.toString())
-                //         .then(response => response.json())
-                //         .then(res => res.map(date => {
-                //             return parseDateString(date);
-                //         }))
-                //         .then(res =>
-                //             this.setState({
-                //                 daysToColor: res
-                //             })
-                //
-                //         )
-                // }}>
-                //     <div className="test">
-                //         <div className="name">{test.name}</div>
-                //         <div className="classes">{test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}</div>
-                //     </div>
-                // </div>
-
             )
         })
         let list = (
@@ -120,7 +98,7 @@ class ScheduleCalendar extends Component {
                         }))
                         .then(res =>
                             this.setState({
-                                daysToColor: res
+                                optionalDays: res
                             })
 
                         )
@@ -129,8 +107,8 @@ class ScheduleCalendar extends Component {
 
         return (
             <MaterialTitlePanel title="מבחנים" style={style}>
-                {list}
                 <div style={styles.content}>
+                    {list}
                     {/*<a href="index.html" style={styles.sidebarLink}>*/}
                     {/*    Home*/}
                     {/*</a>*/}
@@ -146,7 +124,7 @@ class ScheduleCalendar extends Component {
     };
 
     customDayPropGetter(date) {
-        if (this.state.daysToColor.includes(date.getTime())){
+        if (this.state.optionalDays.includes(date.getTime())){
             return {
                 className: 'special-day',
                 style: {
