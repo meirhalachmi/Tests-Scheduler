@@ -57,7 +57,8 @@ class ScheduleCalendar extends Component {
 
         this.state = {
             optionalDays: [],
-            selectedTest: null
+            selectedTestId: null,
+            scheduledTests: []
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
@@ -69,28 +70,33 @@ class ScheduleCalendar extends Component {
             ? { ...styles.sidebar, ...props.style }
             : styles.sidebar;
 
-        const links = [];
+        let links = [];
 
-        let items = []
-
-        props.tests.map((test, ind) => {
-            items.push(
-                (<div className="test">
-                    <div className="name">{test.name}</div>
-                    <div className="classes">
-                        {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
-                    </div>
-                </div>)
-            )
-        })
+        let test_div = []
+        let test_div_ids = []
+        props.tests
+            .filter(test => !this.state.scheduledTests.includes(test.id))
+            .map((test, ind) => {
+                test_div_ids.push(test.id);
+                test_div.push(
+                    (<div className="test">
+                        <div className="name">{test.name}</div>
+                        <div className="classes">
+                            {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
+                        </div>
+                    </div>)
+                )
+            })
+        let selectedTestIndInList = test_div_ids.indexOf(this.state.selectedTestId)
+        console.log(selectedTestIndInList)
         let list = (
             <List
-                items={items}
-                selected={[this.state.selectedTest]}
+                items={test_div}
+                selected={[selectedTestIndInList]}
                 disabled={[]}
                 multiple={false}
                 onChange={(selected) => {
-                    this.setState({selectedTest: selected})
+                    this.setState({selectedTestId: test_div_ids[selected]})
                     fetch('http://localhost:5000/finddate?testid='+props.tests[selected].id.toString())
                         .then(response => response.json())
                         .then(res => res.map(date => {
@@ -169,7 +175,19 @@ class ScheduleCalendar extends Component {
                             startAccessor="start"
                             endAccessor="end"
                             onSelectEvent={(event, e) => {console.log(event)}}
-                            onSelectSlot={(slotInfo) => console.log(slotInfo['start'])}
+                            onSelectSlot={(slotInfo) => {
+                                const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
+                                if (isAnOption){
+                                    this.setState(
+                                        {
+                                            scheduledTests: [...this.state.scheduledTests, this.state.selectedTestId],
+                                            selectedTestId: null,
+                                            optionalDays: []
+                                        }
+                                    )
+                                    console.log(this.state.scheduledTests)
+                                }
+                            }}
                             components={{
                                 event: Event
                             }}
