@@ -8,6 +8,7 @@ import Sidebar from "react-sidebar";
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
+import axios from "axios";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -58,7 +59,8 @@ class ScheduleCalendar extends Component {
         this.state = {
             optionalDays: [],
             selectedTestId: null,
-            scheduledTests: []
+            scheduledTests: [],
+            testEvents: []
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
@@ -88,7 +90,6 @@ class ScheduleCalendar extends Component {
                 )
             })
         let selectedTestIndInList = test_div_ids.indexOf(this.state.selectedTestId)
-        console.log(selectedTestIndInList)
         let list = (
             <List
                 items={test_div}
@@ -170,7 +171,7 @@ class ScheduleCalendar extends Component {
                             defaultDate={new Date()}
                             defaultView="month"
                             views={{month: true, agenda: true}}
-                            events={this.props.events}
+                            events={[...this.props.blockerEvents, ...this.state.testEvents]}
                             style={{ height: "100vh"}}
                             startAccessor="start"
                             endAccessor="end"
@@ -178,14 +179,34 @@ class ScheduleCalendar extends Component {
                             onSelectSlot={(slotInfo) => {
                                 const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
                                 if (isAnOption){
-                                    this.setState(
-                                        {
-                                            scheduledTests: [...this.state.scheduledTests, this.state.selectedTestId],
-                                            selectedTestId: null,
-                                            optionalDays: []
-                                        }
-                                    )
-                                    console.log(this.state.scheduledTests)
+                                    const msg = {
+                                        testid: this.state.selectedTestId.toString(),
+                                        date: slotInfo.start
+                                    };
+                                    const testToSchedule = this.props.testsDict[this.state.selectedTestId];
+                                    axios.post('http://localhost:5000/scheduletest', msg)
+                                        .then(
+                                            () => {
+                                                this.setState(
+                                                    {
+                                                        scheduledTests: [...this.state.scheduledTests, this.state.selectedTestId],
+                                                        selectedTestId: null,
+                                                        optionalDays: [],
+                                                        testEvents: [
+                                                            ...this.state.testEvents,
+                                                            {
+                                                                title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => this.props.classesDict[cls].name).join(', ') + ')',
+                                                                start: new Date(slotInfo.start),
+                                                                end: new Date(slotInfo.start),
+                                                                type: 'test'
+                                                            }
+                                                        ]
+                                                    }
+                                                )
+
+                                            }
+                                        )
+                                        .catch(console.error)
                                 }
                             }}
                             components={{
@@ -210,13 +231,13 @@ const mapStateToProps = (state) => ({
     tests: state.tests.items,
     classesDict: state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {}),
     testsDict: state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {}),
-    events: [
+    blockerEvents: [
         ...
             state.blockers.items.map(blocker => {
                 return {
                     title: blocker.name,
-                    start: new Date(blocker.startDates[0]),
-                    end: new Date(blocker.endDates[0]),
+                    start: new Date(blocker.startDates[0]), //TODO: Add The Entire List
+                    end: new Date(blocker.endDates[0]), //TODO: Add The Entire List
                     type: 'blocker'
                 }
             }),
