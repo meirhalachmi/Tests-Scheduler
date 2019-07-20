@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container'
 import './App.css'
 import Subjects from "../Subjects/Subjects";
 import AddSubjects from "../AddSubjects";
-import ScheduleCalendar from "../ScheduleCalendar/ScehduleCalendar";
+import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar";
 import AddTests from "../AddTests";
 import Home from "../Home/Home";
 import {fetchTests, fetchBlockers, fetchClasses, fetchSubjects} from "../../actions";

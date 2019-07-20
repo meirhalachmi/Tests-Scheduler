@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux'
 import {
     RECEIVE,
-    REQUEST
+    REQUEST,
+    SCHEDULE,
+    UNSCHEDULE
 } from "../actions";
 
 function ReducerCreator(name){
@@ -30,9 +32,41 @@ function ReducerCreator(name){
 
 }
 
+function schedule (
+    state = {
+        scheduledTests: [],
+    },
+    action
+)
+{
+    switch (action.type) {
+        case SCHEDULE:
+            return Object.assign({}, state, {
+                scheduledTests: [
+                    ...state.scheduledTests,
+                    {id: action.id, date: action.date}
+                ],
+            })
+        case UNSCHEDULE:
+            return Object.assign({}, state, {
+                scheduledTests: [
+                    ...state.scheduledTests.filter(st => {
+                        return (st.id !== action.id ||
+                            st.date.toString() !== action.date.toString());
+                    })
+                ],
+            })
+
+        default:
+            return state
+
+    }
+}
+
 export default combineReducers({
     subjects: ReducerCreator('Subjects'),
     classes : ReducerCreator('Classes'),
     blockers : ReducerCreator('Blockers'),
     tests : ReducerCreator('Tests'),
+    schedule
 })
