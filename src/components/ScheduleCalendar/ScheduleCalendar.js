@@ -8,8 +8,8 @@ import Sidebar from "react-sidebar";
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
-import axios from "axios";
-import {scheduleTest, unscheduleTest} from "../../actions";
+import {fetchScheduledTests, scheduleTest, unscheduleTest} from "../../actions";
+import {isEmpty} from "../../utils/utils";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -67,6 +67,15 @@ class ScheduleCalendar extends Component {
         this.SidebarContent = this.SidebarContent.bind(this)
     }
 
+    componentDidMount(): void {
+        this.props.dispatch(fetchScheduledTests())
+        // this.interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 1000);
+    }
+
+    componentWillUnmount() {
+        // clearInterval(this.interval);
+    }
+
 
     SidebarContent = props => {
         const style = props.style
@@ -103,15 +112,19 @@ class ScheduleCalendar extends Component {
                     this.setState({selectedTestId: test_div_ids[selected]})
                     fetch('http://localhost:5000/finddate?testid='+test_div_ids[selected].toString())
                         .then(response => response.json())
-                        .then(res => res.map(date => {
-                            return parseDateString(date);
-                        }))
-                        .then(res =>
+                        .then(res => {
+                            // console.log(res)
+                            const days = res.map(date => {
+                                return parseDateString(date);
+                            });
                             this.setState({
-                                optionalDays: res
-                            })
+                                optionalDays: days
+                            });
+                            if (res.length === 0){
+                                window.alert('לא נותרו תאריכים אפשריים למבחן זה')
+                            }
 
-                        )
+                        })
                         .catch(console.error)
                 }}
             />)
@@ -163,9 +176,8 @@ class ScheduleCalendar extends Component {
             transitions: true,
         };
         return (
-            <div >
-                <Sidebar {...sidebarProps}>
-                    {/*<MaterialTitlePanel>*/}
+            <Sidebar {...sidebarProps}>
+                <MaterialTitlePanel>
                     <div style={styles.content}>
 
                         <BigCalendar
@@ -209,15 +221,13 @@ class ScheduleCalendar extends Component {
 
                         />
                     </div>
-                    {/*</MaterialTitlePanel>*/}
-                </Sidebar>
-            </div>
+                </MaterialTitlePanel>
+            </Sidebar>
         );
     }
 }
 
 const mapStateToProps = (state) => {
-
     let classesDict = state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     let testsDict = state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     return ({
@@ -227,6 +237,7 @@ const mapStateToProps = (state) => {
         tests: state.tests.items,
         classesDict: classesDict,
         testsDict: testsDict,
+        scheduledTests: state.schedule.scheduledTests,
         testsToSchedule: state.tests.items.map(
             test => {
                 const alreadyScheduledCount = state.schedule.scheduledTests.filter(st => st.id === test.id).length;
@@ -256,6 +267,9 @@ const mapStateToProps = (state) => {
             state.schedule.scheduledTests.map(scheduledTestInfo => {
                 const id = scheduledTestInfo.id;
                 const date = scheduledTestInfo.date;
+                if (isEmpty(testsDict)){
+                    return []
+                }
                 const testToSchedule = testsDict[id];
                 return {
                     title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => classesDict[cls].name).join(', ') + ')',

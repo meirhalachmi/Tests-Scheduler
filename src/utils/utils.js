@@ -29,3 +29,11 @@ export const DisplayRemoteData = (props) => {
 export function sortByName(list) {
     return list.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
+
+export function isEmpty(obj) {
+    for(const key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}

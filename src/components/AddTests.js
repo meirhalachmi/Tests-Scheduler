@@ -75,13 +75,13 @@ class AddTests extends React.Component{
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מינימלי</Form.Label>
-                                <Form.Control required type="date" name="minDate"/>
+                                <Form.Control required type="date" name="minDate" defaultValue="2019-07-01"/>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מקסימלי</Form.Label>
-                                <Form.Control required type="date" name="maxDate"/>
+                                <Form.Control required type="date" name="maxDate"  defaultValue="2019-09-01"/>
                             </Form.Group>
                         </Col>
                     </Form.Row>

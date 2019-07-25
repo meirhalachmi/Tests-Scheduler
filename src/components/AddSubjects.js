@@ -4,18 +4,19 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import {Sleep} from '../utils/utils.js';
 import { connect } from 'react-redux'
+import {fetchSubjects} from "../actions";
 
 
 class AddSubject extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { items: [], text: ''};
+        this.state = {text: ''};
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount() {
-        // this.getSubjects();
+        this.props.dispatch(fetchSubjects);
     }
 
 
@@ -29,13 +30,13 @@ class AddSubject extends React.Component {
                             return <li key={`movie-${subject.id}`}>{subject.name}</li>
                         })}
                     </ul>
-                    <form onSubmit={this.handleSubmit}>
+                    <form>
                         <input
                             id="new-todo"
                             onChange={this.handleChange}
                             value={this.state.text}
                         />
-                        <Button>
+                        <Button onClick={this.handleSubmit}>
                             הוסף נושא
                         </Button>
                     </form>
@@ -53,25 +54,17 @@ class AddSubject extends React.Component {
         if (!this.state.text.length) {
             return;
         }
-
         axios.post('http://localhost:5000/subjects', {
             name: this.state.text,
         })
-            .then(response => response.json())
-            .then(data => {
-                this.setState({ items: data })
-            })
             .catch(function (error) {
-                console.log(error);
+                console.error(error);
             });
         this.setState(() => ({
             text: ''
         }));
 
-        Sleep(300).then(
-            () => this.getSubjects()
-        );
-        this.render();
+
     }
 
 }

@@ -34,6 +34,7 @@ function ReducerCreator(name){
 
 function schedule (
     state = {
+        isFetching: false,
         scheduledTests: [],
     },
     action
@@ -56,6 +57,20 @@ function schedule (
                     })
                 ],
             })
+        case REQUEST + '_SCHEDULE':
+            return Object.assign({}, state, {
+                isFetching: true,
+            })
+        case RECEIVE + '_SCHEDULE':
+            return Object.assign({}, state, {
+                isFetching: false,
+                scheduledTests: action.items.map(item => {
+                    const date = new Date(item.date);
+                    date.setHours(0,0,0,0)
+                    return ({id: item.id, date: date});
+                }),
+                lastUpdated: action.receivedAt
+            })
 
         default:
             return state
@@ -68,5 +83,6 @@ export default combineReducers({
     classes : ReducerCreator('Classes'),
     blockers : ReducerCreator('Blockers'),
     tests : ReducerCreator('Tests'),
+    // scheduledTests : ReducerCreator('Scheduled_Tests'),
     schedule
 })
