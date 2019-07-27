@@ -1,10 +1,11 @@
 import axios from "axios";
-import {sortByName} from "../utils/utils";
+import {Sleep, sortByName} from "../utils/utils";
 
 export const REQUEST = 'REQUEST';
 export const RECEIVE = 'RECEIVE';
 export const SCHEDULE = 'SCHEDULE';
 export const UNSCHEDULE = 'UNSCHEDULE';
+export const RESET_SCHEDULE = 'RESET_SCHEDULE';
 
 function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
 
@@ -63,16 +64,15 @@ export const scheduleTest = (id, date) => {
 
                 )
             )
+            .then(() => {
+                Sleep(1000);
+                return dispatch(fetchScheduledTests())
+            })
     }
 
 }
 
 export const unscheduleTest = (id, date) => {
-    // return {
-    //   type: SCHEDULE,
-    //   id,
-    //   date
-    // }
     return dispatch => {
         const msg = {
             testid: id.toString(),
@@ -89,8 +89,31 @@ export const unscheduleTest = (id, date) => {
 
                 )
             )
+            .then(() => {
+                Sleep(1000);
+                return dispatch(fetchScheduledTests())
+            })
     }
-
 }
 
+
+export const resetSchedule = () => {
+    return dispatch => {
+        const msg = {
+        }
+        return axios.post('http://localhost:5000/resetschedule', msg)
+            .then(
+                dispatch(
+                    {
+                        type: UNSCHEDULE,
+                    }
+
+                )
+            )
+            .then(() => {
+                Sleep(1000);
+                return dispatch(fetchScheduledTests())
+            })
+    }
+}
 
