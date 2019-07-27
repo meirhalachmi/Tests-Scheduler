@@ -8,8 +8,11 @@ import Sidebar from "react-sidebar";
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
-import {fetchScheduledTests, scheduleTest, unscheduleTest} from "../../actions";
-import {isEmpty} from "../../utils/utils";
+import {fetchScheduledTests, resetSchedule, scheduleTest, unscheduleTest} from "../../actions";
+import {isEmpty, Sleep} from "../../utils/utils";
+import Button from "react-bootstrap/Button";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEraser, faRobot, faTrashAlt} from "@fortawesome/free-solid-svg-icons";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -31,8 +34,10 @@ const styles = {
         backgroundColor: "#757575"
     },
     content: {
-        // padding: "16px",
-        // height: "100%",
+        padding: "16px",
+        paddingTop: "30px",
+        paddingBottom: "30px",
+        // height: "70%",
         backgroundColor: "white"
     }
 };
@@ -40,7 +45,7 @@ const styles = {
 function Event({ event }) {
     const color = event.type === 'blocker' ? 'red' : 'blue';
     return (
-        <div style={{backgroundColor: color}}>
+        <div style={{backgroundColor: color, fontSize: '15px'}}>
             <strong>{event.title}</strong>
             {event.desc && ':  ' + event.desc}
         </div>
@@ -88,13 +93,16 @@ class ScheduleCalendar extends Component {
         let test_div_ids = []
         props.testsToSchedule.map( info => {
             const test = info.test;
-            // howManyLeft;
             test_div_ids.push(test.id);
+            const numOfOptionalDates = info.optionalDates.length;
+            const color = numOfOptionalDates > 0 ? 'blue' : 'red';
             test_div.push(
                 (<div className="test">
-                    <div className="name">{test.name} - ({info.howManyLeft} מתוך {test.numOfTests})</div>
+                    <div className="name"><span style={{color: color}}>[{numOfOptionalDates}] </span>{test.name} - ({info.howManyLeft} מתוך {test.numOfTests})</div>
                     <div className="classes">
-                        {test.participatingClasses.map(cls => props.classesDict[cls].name).join(', ')}
+                        {test.participatingClasses.map(cls => {
+                            return props.classesDict[cls] ? props.classesDict[cls].name : '';
+                        }).join(', ')}
                     </div>
                 </div>)
             )
@@ -109,7 +117,9 @@ class ScheduleCalendar extends Component {
                 disabled={[]}
                 multiple={false}
                 onChange={(selected) => {
-                    this.setState({selectedTestId: test_div_ids[selected]})
+                    this.setState({
+                        selectedTestId: test_div_ids[selected],
+                    })
                     fetch('http://localhost:5000/finddate?testid='+test_div_ids[selected].toString())
                         .then(response => response.json())
                         .then(res => {
@@ -130,17 +140,31 @@ class ScheduleCalendar extends Component {
             />)
 
         return (
-            <MaterialTitlePanel title="מבחנים" style={style}>
-                <div style={styles.content}>
+            <MaterialTitlePanel title={
+                <div>
+                    מבחנים
+                    <span style={{margin: '16px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
+                    <span><FontAwesomeIcon icon={faRobot} onClick={()=>{
+                        // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
+                        fetch('http://localhost:5000/runscheduler')
+                            .then(() => {
+                                Sleep(300);
+                                this.props.dispatch(fetchScheduledTests())
+                            })
+                            .catch(console.error)
+                    }}/></span>
+                </div>
+
+            } style={style}>
+                <div>
+                    <div style={styles.divider} />
                     {list}
                     {/*<a href="index.html" style={styles.sidebarLink}>*/}
                     {/*    Home*/}
                     {/*</a>*/}
                     {/*<a href="responsive_example.html" style={styles.sidebarLink}>*/}
-                    {/*    Responsive Example*/}
                     {/*</a>*/}
-                    {/*<div style={styles.divider} />*/}
-                    {links}
+                    {/*    Responsive Example*/}
 
                 </div>
             </MaterialTitlePanel>
@@ -177,53 +201,60 @@ class ScheduleCalendar extends Component {
         };
         return (
             <Sidebar {...sidebarProps}>
-                <MaterialTitlePanel>
-                    <div style={styles.content}>
-
-                        <BigCalendar
-                            selectable
-                            localizer={localizer}
-                            defaultDate={new Date()}
-                            defaultView="month"
-                            views={{month: true, agenda: true}}
-                            events={[...this.props.blockerEvents, ...this.props.testEvents]}
-                            style={{ height: "100vh"}}
-                            startAccessor="start"
-                            endAccessor="end"
-                            onSelectEvent={(event, e) => {
-                                if (event.type === 'test'){
-                                    let date = event.start;
-                                    date.setHours(0,0,0,0);
-                                    this.props.dispatch(unscheduleTest(event.id, date))
-                                    this.setState({
-                                        selectedTestId: null,
-                                        optionalDays: []
-                                    })
-                                }
-                            }}
-                            onSelectSlot={(slotInfo) => {
-                                const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
-                                if (isAnOption){
-                                    this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
-
-                                    this.setState({
-                                        selectedTestId: null,
-                                        optionalDays: []
-                                    })
-
-                                }
-                            }}
-                            components={{
-                                event: Event
-                            }}
-                            dayPropGetter={this.customDayPropGetter}
-                            rtl={true}
-
-                        />
-                    </div>
-                </MaterialTitlePanel>
+                <div style={styles.content}>
+                    {this.getBigCalendar(new Date())}
+                </div>
+                <div style={styles.content}>
+                    {this.getBigCalendar(new Date(2019, 7, 1))}
+                </div>
+                <div style={styles.content}>
+                    {this.getBigCalendar(new Date(2019, 8, 1))}
+                </div>
             </Sidebar>
         );
+    }
+
+    getBigCalendar(defaultDate) {
+        return <BigCalendar
+            selectable
+            localizer={localizer}
+            defaultDate={defaultDate}
+            defaultView="month"
+            views={{month: true}}
+            events={[...this.props.blockerEvents, ...this.props.testEvents]}
+            style={{height: "650px"}}
+            startAccessor="start"
+            endAccessor="end"
+            onSelectEvent={(event, e) => {
+                if (event.type === 'test') {
+                    let date = event.start;
+                    date.setHours(0, 0, 0, 0);
+                    this.props.dispatch(unscheduleTest(event.id, date))
+                    this.setState({
+                        selectedTestId: null,
+                        optionalDays: []
+                    })
+                }
+            }}
+            onSelectSlot={(slotInfo) => {
+                const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
+                if (isAnOption) {
+                    this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
+
+                    this.setState({
+                        selectedTestId: null,
+                        optionalDays: []
+                    })
+
+                }
+            }}
+            components={{
+                event: Event
+            }}
+            dayPropGetter={this.customDayPropGetter}
+            rtl={true}
+
+        />;
     }
 }
 
@@ -243,9 +274,13 @@ const mapStateToProps = (state) => {
                 const alreadyScheduledCount = state.schedule.scheduledTests.filter(st => st.id === test.id).length;
                 const howManyNeeded = test.numOfTests;
                 if (howManyNeeded > alreadyScheduledCount){
+
+                    let unscheduledTestsOption = state.schedule.unscheduledTestsOptions[test.id];
+                    unscheduledTestsOption = unscheduledTestsOption ? unscheduledTestsOption : [];
                     return {
                         test: test,
-                        howManyLeft: howManyNeeded - alreadyScheduledCount
+                        howManyLeft: howManyNeeded - alreadyScheduledCount,
+                        optionalDates: unscheduledTestsOption.map(parseDateString)
                     }
                 }
             }
@@ -272,7 +307,9 @@ const mapStateToProps = (state) => {
                 }
                 const testToSchedule = testsDict[id];
                 return {
-                    title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => classesDict[cls].name).join(', ') + ')',
+                    title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
+                        return classesDict[cls] ? classesDict[cls].name : '';
+                    }).join(', ') + ')',
                     start: new Date(date),
                     end: new Date(date),
                     type: 'test',
