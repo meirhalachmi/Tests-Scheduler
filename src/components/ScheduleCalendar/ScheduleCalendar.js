@@ -10,9 +10,8 @@ import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
 import {fetchScheduledTests, resetSchedule, scheduleTest, unscheduleTest} from "../../actions";
 import {isEmpty, Sleep} from "../../utils/utils";
-import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEraser, faRobot, faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {faEraser, faRobot} from "@fortawesome/free-solid-svg-icons";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -87,11 +86,9 @@ class ScheduleCalendar extends Component {
             ? { ...styles.sidebar, ...props.style }
             : styles.sidebar;
 
-        let links = [];
-
         let test_div = []
         let test_div_ids = []
-        props.testsToSchedule.map( info => {
+        props.testsToSchedule.forEach( info => {
             const test = info.test;
             test_div_ids.push(test.id);
             const numOfOptionalDates = info.optionalDates.length;
@@ -176,7 +173,7 @@ class ScheduleCalendar extends Component {
             return {
                 className: 'special-day',
                 style: {
-                    border: 'solid 3px ' + ('#afa'),
+                    border: 'solid 3px #afa',
                 },
             }
 
@@ -282,6 +279,9 @@ const mapStateToProps = (state) => {
                         howManyLeft: howManyNeeded - alreadyScheduledCount,
                         optionalDates: unscheduledTestsOption.map(parseDateString)
                     }
+                }
+                else {
+                    return null;
                 }
             }
         ).filter(i => i != null),

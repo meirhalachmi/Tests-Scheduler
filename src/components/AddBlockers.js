@@ -3,14 +3,6 @@ import {Button, Col, Form} from 'react-bootstrap';
 import {range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
-const daysInWeek = {
-    1: "ראשון",
-    2: "שני",
-    3: "שלישי",
-    4: "רביעי",
-    5: "חמישי",
-    6: "שישי"
-}
 
 class AddBlockers extends React.Component{
     constructor(props) {

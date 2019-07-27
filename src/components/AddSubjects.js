@@ -2,7 +2,6 @@ import React from "react";
 import axios from 'axios/index';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import {Sleep} from '../utils/utils.js';
 import { connect } from 'react-redux'
 import {fetchSubjects} from "../actions";
 
