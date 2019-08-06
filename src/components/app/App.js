@@ -10,17 +10,17 @@ import AddSubjects from "../AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar";
 import AddTests from "../AddTests";
 import Home from "../Home/Home";
-import {fetchTests, fetchBlockers, fetchClasses, fetchSubjects} from "../../actions";
+import {fetchTests, fetchBlockers, fetchClasses, fetchSubjects, fetchSession} from "../../actions";
 import PropTypes from "prop-types";
 import AddBlockers from "../AddBlockers";
+import Session from "../Session";
 
 class AsyncApp extends Component{
     componentDidMount(): void {
         const {dispatch} = this.props
-        dispatch(fetchSubjects())
-        dispatch(fetchClasses())
-        dispatch(fetchBlockers())
-        dispatch(fetchTests())
+        if (this.props.session.id !== null){
+            dispatch(fetchSession(this.props.session.id))
+        }
     }
 
     render() {
@@ -48,6 +48,7 @@ class AsyncApp extends Component{
                             <Route path="/calendar" component={ScheduleCalendar}/>
                             <Route path="/addtests" component={AddTests}/>
                             <Route path="/addblockers" component={AddBlockers}/>
+                            <Route path="/session" component={Session}/>
                         </Switch>
                     </div>
                 </Router>
@@ -64,9 +65,10 @@ AsyncApp.propTypes = {
 }
 
 function mapStateToProps(state) {
-    const { subjects } = state
+    const { subjects, session } = state
     const { isFetching, items } = subjects
     return {
+        session,
         items,
         isFetching,
     }

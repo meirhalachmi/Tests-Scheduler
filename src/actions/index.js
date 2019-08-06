@@ -6,6 +6,7 @@ export const RECEIVE = 'RECEIVE';
 export const SCHEDULE = 'SCHEDULE';
 export const UNSCHEDULE = 'UNSCHEDULE';
 export const RESET_SCHEDULE = 'RESET_SCHEDULE';
+export const INIT_SESSION = 'INIT_SESSION';
 
 function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
 
@@ -23,10 +24,11 @@ function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
         }
     }
 
-    return function () {
+    return function (sessionId) {
+        sessionId=1;
         return dispatch => {
             dispatch(request());
-            return fetch(url)
+            return fetch(url+'?session='+sessionId.toString())
                 .then(response => response.json())
                 .then(json => dispatch(receive(json)))
         }
@@ -41,6 +43,21 @@ export const fetchClasses = FetchActionCreator('Classes', 'http://localhost:5000
 export const fetchBlockers = FetchActionCreator('Blockers', 'http://localhost:5000/blockers')
 export const fetchTests = FetchActionCreator('Tests', 'http://localhost:5000/tests')
 export const fetchScheduledTests = FetchActionCreator('Schedule', 'http://localhost:5000/currenttcheduledtests')
+
+export function fetchSession(sessionId) {
+    return dispatch => {
+        dispatch({
+            type: INIT_SESSION,
+            sessionId: sessionId
+        })
+        dispatch(fetchSubjects(sessionId));
+        dispatch(fetchClasses(sessionId));
+        dispatch(fetchBlockers(sessionId));
+        dispatch(fetchTests(sessionId));
+    }
+
+}
+
 
 export const scheduleTest = (id, date) => {
     // return {

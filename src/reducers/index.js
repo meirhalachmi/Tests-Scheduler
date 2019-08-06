@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux'
 import {
+    INIT_SESSION,
     RECEIVE,
     REQUEST,
     SCHEDULE,
@@ -41,7 +42,7 @@ function schedulerState (
     action
 )
 {
-    console.log(action);
+    // console.log(action);
     switch (action.type) {
         case SCHEDULE:
             return Object.assign({}, state, {
@@ -81,7 +82,19 @@ function schedulerState (
     }
 }
 
+function session(state = {id: null}, action) {
+    if (action.type === INIT_SESSION) {
+        console.log(action)
+        return Object.assign({}, state, {
+            id: action.sessionId,
+        })
+    } else {
+        return state;
+    }
+}
+
 export default combineReducers({
+    session,
     subjects: ReducerCreator('Subjects'),
     classes : ReducerCreator('Classes'),
     blockers : ReducerCreator('Blockers'),
