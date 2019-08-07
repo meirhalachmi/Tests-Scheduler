@@ -10,17 +10,17 @@ import AddSubjects from "../AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar";
 import AddTests from "../AddTests";
 import Home from "../Home/Home";
-import {fetchTests, fetchBlockers, fetchClasses, fetchSubjects, fetchSession} from "../../actions";
 import PropTypes from "prop-types";
 import AddBlockers from "../AddBlockers";
 import Session from "../Session";
+import SelectSession from "../SelectSession";
 
 class AsyncApp extends Component{
     componentDidMount(): void {
         const {dispatch} = this.props
-        if (this.props.session.id !== null){
-            dispatch(fetchSession(this.props.session.id))
-        }
+        // if (this.props.session.id !== null){
+        //     dispatch(fetchSession(this.props.session.id))
+        // }
     }
 
     render() {
@@ -49,6 +49,7 @@ class AsyncApp extends Component{
                             <Route path="/addtests" component={AddTests}/>
                             <Route path="/addblockers" component={AddBlockers}/>
                             <Route path="/session" component={Session}/>
+                            <Route path="/selectsession" component={SelectSession}/>
                         </Switch>
                     </div>
                 </Router>

@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import { connect } from 'react-redux'
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
-import Accordion from "react-bootstrap/Accordion";
+// import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
 import {fetchSession} from "../actions";
 
@@ -43,6 +43,7 @@ class SetupSession extends React.Component {
         axios.post('http://localhost:5000/initsession', msg)
             .then(res => res.data)
             .then(res => this.props.dispatch(fetchSession(res.session)))
+            .then(() => this.props.history.push('/subjects'))
             .catch(console.error);
     }
 
@@ -151,7 +152,7 @@ class SetupSession extends React.Component {
                         {/*</Accordion.Collapse>*/}
                     </Card>
 
-                    <Button onClick={this.sendSession}>שמור</Button>
+                    <Button onClick={this.sendSession}>שמור והמשך להגדרת אשכלות</Button>
                 {/*// </Accordion>*/}
 
 
@@ -177,11 +178,11 @@ class List extends React.Component {
         return (
             <div>
                 {/*<h2>{this.props.title}</h2>*/}
-                <aul>
+                <ul>
                     {this.state.list.map((item, idx) => {
                         return <li key={`item-${idx}`}>{item}</li>
                     })}
-                </aul>
+                </ul>
                 <form>
                     <input
                         id="new-todo"

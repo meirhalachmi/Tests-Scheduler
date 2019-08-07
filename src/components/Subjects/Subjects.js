@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios/index';
 import {fillArray   } from "../../utils/utils";
+import {connect} from "react-redux";
 
 const ColumnContainer = styled.div`
   margin: 10px;
@@ -58,25 +59,28 @@ const getListStyle = isDraggingOver => ({
     width: 250
 });
 
-const getGroupedSubjectsRequest = new Request('http://localhost:5000/groupedSubjects');
-const getSubjectsRequest = new Request('http://localhost:5000/subjects');
+
 
 
 class Subjects extends Component {
 
     constructor(props: P, context: any) {
         super(props, context);
+        this.getGroupedSubjectsRequest = new Request(
+            'http://localhost:5000/groupedSubjects?session='+this.props.sessionId.toString());
+        this.getSubjectsRequest = new Request(
+            'http://localhost:5000/subjects?session='+this.props.sessionId.toString());
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
             lists: [[]],
-            titles: ['מקצועות ליבה']
+            titles: ['מקצועות ליבה'],
         }
-        fetch(getGroupedSubjectsRequest)
+        fetch(this.getGroupedSubjectsRequest)
             .then(response => response.json())
             .then(data => {
                 this.initialGroupedSubjects = data;
             }).then(() => {
-            fetch(getSubjectsRequest)
+            fetch(this.getSubjectsRequest)
                 .then(response => response.json())
                 .then(data => {
                     this.subjects = new Map(data.map(v => [v.id, v.name]));
@@ -200,16 +204,26 @@ class Subjects extends Component {
         let newGroups = this.state.lists.map(gr => gr.map(v => v.id));
         let no_pars = newGroups.shift()
         let par_groups = newGroups.length === 0 ? [[]] : newGroups;
-        let msg = {
-            no_parallels: [no_pars],
-            parallel_groups: [par_groups]
-        };
 
-        axios.post('http://localhost:5000/groupedSubjects', msg)
-            .then(response => response.json())
-            .catch(function (error) {
-                console.log(error);
-            });
+        let isValid = true;
+        par_groups.forEach((group, i) => {
+            if (group.length === 1){
+                alert('אשכול מגמות לא יכול להכיל רק מקצוע אחד')
+                isValid = false;
+            }
+        })
+        if (isValid){
+            let msg = {
+                no_parallels: [no_pars],
+                parallel_groups: [par_groups],
+            };
+
+            axios.post('http://localhost:5000/groupedSubjects', msg)
+                .then(response => response.json())
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
     }
 
 
@@ -232,5 +246,14 @@ class Subjects extends Component {
         );
     }
 }
+function mapStateToProps(state) {
+    const { subjects, session } = state;
+    const { isFetching, items } = subjects;
+    return {
+        sessionId: session.id,
+        subjects: items,
+        isFetching,
+    }
+}
 
-export default Subjects;
+export default connect(mapStateToProps)(Subjects);

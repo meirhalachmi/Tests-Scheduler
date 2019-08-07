@@ -25,7 +25,6 @@ function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
     }
 
     return function (sessionId) {
-        sessionId=1;
         return dispatch => {
             dispatch(request());
             return fetch(url+'?session='+sessionId.toString())

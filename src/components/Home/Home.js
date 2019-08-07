@@ -30,10 +30,7 @@ class ApiList extends Component<{ parserFunction: (s?: any) => any }> {
 export default function Home() {
     return (
         <div>
-            <ApiList name="מבחנים" url="http://localhost:5000/tests"/>
-            <ApiList name="אילוצים" url="http://localhost:5000/blockers"/>
-            <ApiList name="כיתות" url="http://localhost:5000/classes"/>
-            <ApiList name="נושאים" url="http://localhost:5000/subjects"/>
+            <ApiList name="סשנים" url="http://localhost:5000/sessionslist"/>
         </div>
     )
 }
