@@ -15,7 +15,7 @@ class AddSubject extends React.Component {
     }
 
     componentDidMount() {
-        this.props.dispatch(fetchSubjects);
+        // this.props.dispatch(fetchSubjects);
     }
 
 

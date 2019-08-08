@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { connect } from 'react-redux'
-import { BrowserRouter as Router, Switch, Route} from "react-router-dom";
+import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
@@ -12,8 +12,15 @@ import AddTests from "../AddTests";
 import Home from "../Home/Home";
 import PropTypes from "prop-types";
 import AddBlockers from "../AddBlockers";
-import Session from "../Session";
+import SessionSetup from "../SetupSession";
 import SelectSession from "../SelectSession";
+import SessionHome from "../SessionHome";
+
+class NavRouterLink extends Component<{}> {
+    render() {
+        return <Link to={this.props.to}><Nav.Item className="nav-link">{this.props.children}</Nav.Item></Link>;
+    }
+}
 
 class AsyncApp extends Component{
     componentDidMount(): void {
@@ -30,13 +37,12 @@ class AsyncApp extends Component{
                     <div style={{alignItems: ""}}>
                         <nav>
                             <Navbar bg="light" variant="light">
-                                <Navbar.Brand href="/home">Navbar</Navbar.Brand>
+                                <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>
                                 <Nav className="mr-auto">
-                                    <Nav.Link href="/addsubjects">מקצועות</Nav.Link>
-                                    <Nav.Link href="/subjects">אשכולות</Nav.Link>
-                                    <Nav.Link href="/calendar">לוח שנה</Nav.Link>
-                                    <Nav.Link href="/addtests">הגדרת מבחנים</Nav.Link>
-                                    <Nav.Link href="/addblockers">הגדרת אילוצים</Nav.Link>
+                                    <NavRouterLink to="/session">סשן</NavRouterLink>
+                                    <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>
+                                    <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>
+                                    <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>
                                 </Nav>
                             </Navbar>
                         </nav>
@@ -48,8 +54,9 @@ class AsyncApp extends Component{
                             <Route path="/calendar" component={ScheduleCalendar}/>
                             <Route path="/addtests" component={AddTests}/>
                             <Route path="/addblockers" component={AddBlockers}/>
-                            <Route path="/session" component={Session}/>
+                            <Route path="/sessionsetup" component={SessionSetup}/>
                             <Route path="/selectsession" component={SelectSession}/>
+                            <Route path="/session" component={SessionHome}/>
                         </Switch>
                     </div>
                 </Router>

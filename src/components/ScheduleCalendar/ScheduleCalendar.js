@@ -72,7 +72,7 @@ class ScheduleCalendar extends Component {
     }
 
     componentDidMount(): void {
-        this.props.dispatch(fetchScheduledTests())
+        this.props.dispatch(fetchScheduledTests(this.props.session.id))
         // this.interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 1000);
     }
 
@@ -259,6 +259,7 @@ const mapStateToProps = (state) => {
     let classesDict = state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     let testsDict = state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     return ({
+        session: state.session.items,
         subjects: state.subjects.items,
         classes: state.classes.items,
         blockers: state.blockers.items,

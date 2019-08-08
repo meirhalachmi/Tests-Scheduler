@@ -67,9 +67,9 @@ class Subjects extends Component {
     constructor(props: P, context: any) {
         super(props, context);
         this.getGroupedSubjectsRequest = new Request(
-            'http://localhost:5000/groupedSubjects?session='+this.props.sessionId.toString());
+            'http://localhost:5000/groupedSubjects?session='+this.props.session.id.toString());
         this.getSubjectsRequest = new Request(
-            'http://localhost:5000/subjects?session='+this.props.sessionId.toString());
+            'http://localhost:5000/subjects?session='+this.props.session.id.toString());
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
             lists: [[]],

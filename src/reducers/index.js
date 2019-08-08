@@ -82,19 +82,19 @@ function schedulerState (
     }
 }
 
-function session(state = {id: null}, action) {
-    if (action.type === INIT_SESSION) {
-        console.log(action)
-        return Object.assign({}, state, {
-            id: action.sessionId,
-        })
-    } else {
-        return state;
-    }
-}
+// function session(state = {id: null}, action) {
+//     if (action.type === INIT_SESSION) {
+//         console.log(action)
+//         return Object.assign({}, state, {
+//             id: action.sessionId,
+//         })
+//     } else {
+//         return state;
+//     }
+// }
 
 export default combineReducers({
-    session,
+    session: ReducerCreator('Session'),
     subjects: ReducerCreator('Subjects'),
     classes : ReducerCreator('Classes'),
     blockers : ReducerCreator('Blockers'),

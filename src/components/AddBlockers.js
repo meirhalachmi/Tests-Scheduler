@@ -3,6 +3,7 @@ import {Button, Col, Form} from 'react-bootstrap';
 import {range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
+import Container from "react-bootstrap/Container";
 
 class AddBlockers extends React.Component{
     constructor(props) {
@@ -12,8 +13,8 @@ class AddBlockers extends React.Component{
     }
     render() {
         return (
-            <div style={{width: "50%"}}>
-                <h1>הוספת אילוץ</h1>
+            <Container style={{width: "85%"}}>
+                {/*<h1>הוספת אילוץ</h1>*/}
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Row>
                         <Col md={12}>
@@ -91,7 +92,7 @@ class AddBlockers extends React.Component{
                         </Col>
                     </Form.Row>
                 </Form>
-            </div>
+            </Container>
         )
     }
 
@@ -99,6 +100,7 @@ class AddBlockers extends React.Component{
         e.preventDefault();
 
         const msg = {
+            session: this.props.session.id,
             name: e.target.name.value,
             participatingClasses:  [[...e.target.participatingClasses.options].filter(o => o.selected).map(o => o.value)],
             participatingSubjects:  [[...e.target.participatingSubjects.options].filter(o => o.selected).map(o => o.value)],
@@ -110,12 +112,20 @@ class AddBlockers extends React.Component{
         axios.post('http://localhost:5000/blockers', msg)
             .catch(function (error) {
                 console.error(error);
+                alert(error);
+            })
+            .then(() => {
+                if (this.props.afterSend){
+                    this.props.afterSend()
+                }
+
             })
     }
 
 }
 
 const mapStateToProps = (state) => ({
+    session: state.session.items,
     subjects : state.subjects.items,
     classes : state.classes.items
 })

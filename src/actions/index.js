@@ -36,11 +36,14 @@ function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
 }
 
 
-export const fetchSubjects = FetchActionCreator('Subjects', 'http://localhost:5000/subjects',
+const fetchSubjects = FetchActionCreator('Subjects', 'http://localhost:5000/subjects',
     sortByName)
-export const fetchClasses = FetchActionCreator('Classes', 'http://localhost:5000/classes')
-export const fetchBlockers = FetchActionCreator('Blockers', 'http://localhost:5000/blockers')
-export const fetchTests = FetchActionCreator('Tests', 'http://localhost:5000/tests')
+const fetchClasses = FetchActionCreator('Classes', 'http://localhost:5000/classes')
+const fetchBlockers = FetchActionCreator('Blockers', 'http://localhost:5000/blockers')
+const fetchTests = FetchActionCreator('Tests', 'http://localhost:5000/tests')
+const fetchSessionInfo = FetchActionCreator('Session', 'http://localhost:5000/sessioninfo')
+
+
 export const fetchScheduledTests = FetchActionCreator('Schedule', 'http://localhost:5000/currenttcheduledtests')
 
 export function fetchSession(sessionId) {
@@ -49,6 +52,7 @@ export function fetchSession(sessionId) {
             type: INIT_SESSION,
             sessionId: sessionId
         })
+        dispatch(fetchSessionInfo(sessionId));
         dispatch(fetchSubjects(sessionId));
         dispatch(fetchClasses(sessionId));
         dispatch(fetchBlockers(sessionId));
