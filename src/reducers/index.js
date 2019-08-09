@@ -37,6 +37,7 @@ function schedulerState (
     state = {
         isFetching: false,
         scheduledTests: [],
+        unscheduledTestsOptions: {},
         horizon: true
     },
     action
@@ -73,7 +74,7 @@ function schedulerState (
                     return ({id: item.id, date: date});
                 }),
                 unscheduledTestsOptions: action.items.unscheduledTestsOptions,
-                lastUpdated: action.receivedAt
+                // lastUpdated: action.receivedAt
             })
 
         default:

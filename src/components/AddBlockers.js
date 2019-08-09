@@ -1,6 +1,6 @@
 import React from "react";
 import {Button, Col, Form} from 'react-bootstrap';
-import {range} from "../utils/utils";
+import {formatDate, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
@@ -56,13 +56,17 @@ class AddBlockers extends React.Component{
                                 <Col md={6}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>תאריך התחלה</Form.Label>}
-                                        <Form.Control required type="date" name={"startDate" + i.toString()}/>
+                                        <Form.Control required type="date" name={"startDate" + i.toString()}
+                                                      min={this.props.minDate} max={this.props.maxDate}
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>תאריך סיום</Form.Label>}
-                                        <Form.Control required type="date" name={"endDate" + i.toString()}/>
+                                        <Form.Control required type="date" name={"endDate" + i.toString()}
+                                                      min={this.props.minDate} max={this.props.maxDate}
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Form.Row>
@@ -127,6 +131,9 @@ class AddBlockers extends React.Component{
 const mapStateToProps = (state) => ({
     session: state.session.items,
     subjects : state.subjects.items,
-    classes : state.classes.items
+    classes : state.classes.items,
+    minDate: formatDate(state.session.items.startDate),
+    maxDate: formatDate(state.session.items.endDate),
+
 })
 export default connect(mapStateToProps)(AddBlockers);

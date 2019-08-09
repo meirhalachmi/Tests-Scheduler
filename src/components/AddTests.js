@@ -1,6 +1,6 @@
 import React from "react";
 import {Button, Col, Form} from 'react-bootstrap';
-import {range} from "../utils/utils";
+import {formatDate, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
@@ -76,13 +76,17 @@ class AddTests extends React.Component{
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מינימלי</Form.Label>
-                                <Form.Control required type="date" name="minDate" defaultValue="2019-07-01"/>
+                                <Form.Control required type="date" format="DD-MM-YYYY" name="minDate"
+                                              min={this.props.minDate} max={this.props.maxDate}
+                                              defaultValue={this.props.minDate}/>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>תאריך מקסימלי</Form.Label>
-                                <Form.Control required type="date" name="maxDate"  defaultValue="2019-09-01"/>
+                                <Form.Control required type="date" format="DD-MM-YYYY" name="maxDate"
+                                              min={this.props.minDate} max={this.props.maxDate}
+                                              defaultValue={this.props.maxDate}/>
                             </Form.Group>
                         </Col>
                     </Form.Row>
@@ -104,7 +108,7 @@ class AddTests extends React.Component{
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
                                         <Form.Control required key={i} type="number" name={"optionalStartHours" + i.toString()} defaultValue={0} step={1}
-                                                      min={0} max={9} //TODO: Change max to the number of days in the interval
+                                                      min={this.props.session.startHour} max={this.props.session.endHour}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -112,7 +116,7 @@ class AddTests extends React.Component{
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת סיום</Form.Label>}
                                         <Form.Control requiredkey={i} type="number" name={"optionalEndHours" + i.toString()} step={1} defaultValue={9}
-                                                      min={0} max={9} //TODO: Change max to the number of days in the interval
+                                                      min={this.props.session.startHour} max={this.props.session.endHour} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>
                                 </Col>
@@ -181,6 +185,8 @@ class AddTests extends React.Component{
 const mapStateToProps = (state) => ({
     session : state.session.items,
     subjects : state.subjects.items,
-    classes : state.classes.items
+    classes : state.classes.items,
+    minDate: formatDate(state.session.items.startDate),
+    maxDate: formatDate(state.session.items.endDate),
 })
 export default connect(mapStateToProps)(AddTests);

@@ -1,37 +1,19 @@
 import React, {Component} from "react";
-import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from "react-bootstrap/Button";
 import {connect} from "react-redux";
-import {isEmpty} from "../utils/utils";
-import Modal from "react-bootstrap/Modal";
 import AddBlockers from "./AddBlockers";
 import AddTests from "./AddTests";
-import {SessionCard} from "./Cards/SessionCard";
 import {fetchSession} from "../actions";
-
-class ModalForm extends Component<{ show: any, onHide: () => any }> {
-    render() {
-        return <Modal
-            size="lg"
-            show={this.props.show}
-            onHide={this.props.onHide}
-            aria-labelledby="example-modal-sizes-title-lg"
-        >
-            <Modal.Header closeButton>
-                <Modal.Title id="example-modal-sizes-title-lg">
-                    {this.props.title}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                {this.props.body}
-            </Modal.Body>
-        </Modal>;
-    }
-}
+import ScheduleCalendar from "./ScheduleCalendar/ScheduleCalendar";
+import {ModalForm} from "./ModalForm";
 
 class SessionHome extends Component {
     constructor(props){
         super(props);
+        console.warn('REMOVE HARD CODED ID');
+        this.props.dispatch(fetchSession(3)); //FIXME
+
+
         this.state = {blockerModalShow: false, testModalShow: false}
         this.closeModals = this.closeModals.bind(this)
     }
@@ -41,6 +23,7 @@ class SessionHome extends Component {
         this.props.dispatch(fetchSession(this.props.session.id))
     }
 
+
     render() {
         console.log(this.props)
         // if (this.props.session.length){
@@ -48,21 +31,65 @@ class SessionHome extends Component {
         //     this.props.history.push('/selectsession')
         // }
         return (
-            <Jumbotron>
+            <div>
                 <h1>{this.props.session.name}</h1>
 
-                <ModalForm title="הוסף אילוץ" body={<AddBlockers afterSend={this.closeModals}/>}
+                <ModalForm title="הוסף אילוץ"
                            show={this.state.blockerModalShow}
-                           onHide={this.closeModals}/>
-                <ModalForm title="הוסף מבחן" body={<AddTests afterSend={this.closeModals}/>}
+                           onHide={this.closeModals}>
+                    <AddBlockers afterSend={this.closeModals}/>
+                </ModalForm>
+                <ModalForm title="הוסף מבחן"
                            show={this.state.testModalShow}
-                           onHide={this.closeModals}/>
+                           onHide={this.closeModals}>
+                    <AddTests afterSend={this.closeModals}/>
+                </ModalForm>
 
-                <p>
-                    <Button variant="primary" onClick={() => this.setState({blockerModalShow: true})}>הוסף אילוץ</Button>
-                    <Button variant="primary" onClick={() => this.setState({testModalShow: true})}>הוסף מבחן</Button>
-                </p>
-            </Jumbotron>
+                <div>
+                    <Button variant="primary" onClick={() => this.setState({blockerModalShow: true})}>
+                        הוסף אילוץ</Button>
+                    <Button variant="primary" onClick={() => this.setState({testModalShow: true})}>
+                        הוסף מבחן</Button>
+                </div>
+                {/*<h2>מבחנים</h2>*/}
+                {/*<div style={{marginRight: '5px'}}>*/}
+                {/*    {sortByName(this.props.tests).map(test => (*/}
+                {/*        <div>*/}
+                {/*            <h4>{test.name} </h4>*/}
+                {/*            <ul style={{marginRight: '10px'}}>*/}
+                {/*                <li><strong>כיתות: </strong>*/}
+                {/*                    {test.participatingClasses.map(cls => {*/}
+                {/*                        return this.props.classesDict[cls] ?*/}
+                {/*                            this.props.classesDict[cls].name : '';*/}
+                {/*                    }).join(', ')}*/}
+                {/*                </li>*/}
+                {/*            </ul>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
+
+                {/*<h2>אילוצים</h2>*/}
+                {/*<div style={{marginRight: '5px'}}>*/}
+                {/*    {sortByName(this.props.blockers).map(blocker => (*/}
+                {/*        <div>*/}
+                {/*            <h4>{blocker.name} </h4>*/}
+                {/*            <ul style={{marginRight: '10px'}}>*/}
+                {/*                <li><strong>כיתות: </strong>*/}
+                {/*                    {blocker.participatingClasses.map(cls => {*/}
+                {/*                        return this.props.classesDict[cls] ?*/}
+                {/*                            this.props.classesDict[cls].name : '';*/}
+                {/*                    }).join(', ')}*/}
+                {/*                </li>*/}
+
+                {/*            </ul>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
+                <ScheduleCalendar session={this.props.session}/>
+
+
+
+            </div>
         )
     }
 }

@@ -57,20 +57,22 @@ export function fetchSession(sessionId) {
         dispatch(fetchClasses(sessionId));
         dispatch(fetchBlockers(sessionId));
         dispatch(fetchTests(sessionId));
+        dispatch(fetchScheduledTests(sessionId));
     }
 
 }
 
 
-export const scheduleTest = (id, date) => {
+export const scheduleTest = (sessionId, testId, date) => {
     // return {
     //   type: SCHEDULE,
-    //   id,
+    //   testId,
     //   date
     // }
     return dispatch => {
         const msg = {
-            testid: id.toString(),
+            session: sessionId.toString(),
+            testid: testId.toString(),
             date: date
         }
         return axios.post('http://localhost:5000/scheduletest', msg)
@@ -78,7 +80,7 @@ export const scheduleTest = (id, date) => {
                 dispatch(
                     {
                         type: SCHEDULE,
-                        id: id,
+                        id: testId,
                         date: date
                     }
 
@@ -86,16 +88,17 @@ export const scheduleTest = (id, date) => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests())
+                return dispatch(fetchScheduledTests(sessionId))
             })
     }
 
 }
 
-export const unscheduleTest = (id, date) => {
+export const unscheduleTest = (sessionId, testId, date) => {
     return dispatch => {
         const msg = {
-            testid: id.toString(),
+            session: sessionId.toString(),
+            testid: testId.toString(),
             date: date
         }
         return axios.post('http://localhost:5000/unscheduletest', msg)
@@ -103,7 +106,7 @@ export const unscheduleTest = (id, date) => {
                 dispatch(
                     {
                         type: UNSCHEDULE,
-                        id: id,
+                        id: testId,
                         date: date
                     }
 
@@ -111,15 +114,16 @@ export const unscheduleTest = (id, date) => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests())
+                return dispatch(fetchScheduledTests(sessionId))
             })
     }
 }
 
 
-export const resetSchedule = () => {
+export const resetSchedule = (sessionId) => {
     return dispatch => {
         const msg = {
+            session: sessionId.toString(),
         }
         return axios.post('http://localhost:5000/resetschedule', msg)
             .then(
@@ -132,7 +136,7 @@ export const resetSchedule = () => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests())
+                return dispatch(fetchScheduledTests(sessionId))
             })
     }
 }

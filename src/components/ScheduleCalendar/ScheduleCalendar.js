@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import BigCalendar from "react-big-calendar";
 import moment from "moment";
 import "./ScheduleCalendar.css";
@@ -8,71 +8,46 @@ import Sidebar from "react-sidebar";
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
-import {fetchScheduledTests, resetSchedule, scheduleTest, unscheduleTest} from "../../actions";
+import {fetchScheduledTests, fetchSession, resetSchedule, scheduleTest, unscheduleTest} from "../../actions";
 import {isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEraser, faRobot} from "@fortawesome/free-solid-svg-icons";
+import {faEraser, faLock, faPlus, faRobot} from "@fortawesome/free-solid-svg-icons";
+import {Event, parseDateString, styles} from "./helpers";
+import {ModalForm} from "../ModalForm";
+import AddBlockers from "../AddBlockers";
+import AddTests from "../AddTests";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
 
-const styles = {
-    sidebar: {
-        width: 256,
-        // height: "100%"
-    },
-    sidebarLink: {
-        display: "block",
-        padding: "16px 0px",
-        color: "#757575",
-        textDecoration: "none"
-    },
-    divider: {
-        margin: "8px 0",
-        height: 1,
-        backgroundColor: "#757575"
-    },
-    content: {
-        padding: "16px",
-        paddingTop: "30px",
-        paddingBottom: "30px",
-        // height: "70%",
-        backgroundColor: "white"
-    }
-};
-
-function Event({ event }) {
-    const color = event.type === 'blocker' ? 'red' : 'blue';
-    return (
-        <div style={{backgroundColor: color, fontSize: '15px'}}>
-            <strong>{event.title}</strong>
-            {event.desc && ':  ' + event.desc}
-        </div>
-    )
-}
-
-function parseDateString(date) {
-    let d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d.getTime()
-}
 
 class ScheduleCalendar extends Component {
     constructor(props) {
         super(props);
+        console.warn('REMOVE HARD CODED ID');
+        this.props.dispatch(fetchSession(3)); //FIXME
 
         this.state = {
             optionalDays: [],
             selectedTestId: null,
             scheduledTests: [],
-            testEvents: []
+            testEvents: [],
+
+            blockerModalShow: false, testModalShow: false
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
         this.SidebarContent = this.SidebarContent.bind(this)
+        this.closeModals = this.closeModals.bind(this)
+
+    }
+
+    closeModals() {
+        this.setState({blockerModalShow: false, testModalShow: false})
+        this.props.dispatch(fetchSession(this.props.session.id))
     }
 
     componentDidMount(): void {
-        this.props.dispatch(fetchScheduledTests(this.props.session.id))
+        // this.props.dispatch(fetchScheduledTests(this.props.session.id))
         // this.interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 1000);
     }
 
@@ -117,7 +92,10 @@ class ScheduleCalendar extends Component {
                     this.setState({
                         selectedTestId: test_div_ids[selected],
                     })
-                    fetch('http://localhost:5000/finddate?testid='+test_div_ids[selected].toString())
+                    fetch('http://localhost:5000/finddate?' +
+                        'testid='+test_div_ids[selected].toString() +
+                        '&session='+this.props.session.id.toString()
+                    )
                         .then(response => response.json())
                         .then(res => {
                             // console.log(res)
@@ -140,19 +118,37 @@ class ScheduleCalendar extends Component {
             <MaterialTitlePanel title={
                 <div>
                     מבחנים
-                    <span style={{margin: '16px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
+                    <span style={{margin: '10px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule(this.props.session.id))}}/></span>
                     <span><FontAwesomeIcon icon={faRobot} onClick={()=>{
                         // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
-                        fetch('http://localhost:5000/runscheduler')
+                        fetch('http://localhost:5000/runscheduler?session=' +
+                            this.props.session.id.toString())
                             .then(() => {
                                 Sleep(300);
-                                this.props.dispatch(fetchScheduledTests())
+                                this.props.dispatch(fetchScheduledTests(this.props.session.id))
                             })
                             .catch(console.error)
                     }}/></span>
+                    <span style={{margin: '10px'}}>
+                        <FontAwesomeIcon icon={faPlus} onClick={() => this.setState({testModalShow: true})}/>
+                    </span>
+                    <span style={{margin: '10px'}}>
+                        <FontAwesomeIcon icon={faLock} onClick={() => this.setState({blockerModalShow: true})}/>
+                    </span>
                 </div>
 
             } style={style}>
+                 <ModalForm title="הוסף אילוץ"
+                           show={this.state.blockerModalShow}
+                           onHide={this.closeModals}>
+                    <AddBlockers afterSend={this.closeModals}/>
+                </ModalForm>
+                <ModalForm title="הוסף מבחן"
+                           show={this.state.testModalShow}
+                           onHide={this.closeModals}>
+                    <AddTests afterSend={this.closeModals}/>
+                </ModalForm>
+
                 <div>
                     <div style={styles.divider} />
                     {list}
@@ -196,17 +192,27 @@ class ScheduleCalendar extends Component {
             pullRight: true,
             transitions: true,
         };
+        const startDate = moment(this.props.session.startDate);
+        const endDate = moment(this.props.session.endDate);
+
+        const result = [];
+
+        if (endDate.isBefore(startDate)) {
+            throw "End date must be greated than start date."
+        }
+
+        while (startDate.isBefore(endDate)) {
+            result.push(startDate.format("YYYY-MM-01"));
+            startDate.add(1, 'month');
+        }
+        // console.log(result)
         return (
             <Sidebar {...sidebarProps}>
-                <div style={styles.content}>
-                    {this.getBigCalendar(new Date())}
-                </div>
-                <div style={styles.content}>
-                    {this.getBigCalendar(new Date(2019, 7, 1))}
-                </div>
-                <div style={styles.content}>
-                    {this.getBigCalendar(new Date(2019, 8, 1))}
-                </div>
+                {result.map(date => (
+                    <div style={styles.content}>
+                        {this.getBigCalendar(new Date(date))}
+                    </div>
+                ))}
             </Sidebar>
         );
     }
@@ -226,7 +232,7 @@ class ScheduleCalendar extends Component {
                 if (event.type === 'test') {
                     let date = event.start;
                     date.setHours(0, 0, 0, 0);
-                    this.props.dispatch(unscheduleTest(event.id, date))
+                    this.props.dispatch(unscheduleTest(this.props.session.id, event.id, date))
                     this.setState({
                         selectedTestId: null,
                         optionalDays: []
@@ -236,7 +242,7 @@ class ScheduleCalendar extends Component {
             onSelectSlot={(slotInfo) => {
                 const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
                 if (isAnOption) {
-                    this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
+                    this.props.dispatch(scheduleTest(this.props.session.id, this.state.selectedTestId, slotInfo.start))
 
                     this.setState({
                         selectedTestId: null,
