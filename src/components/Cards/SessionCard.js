@@ -2,6 +2,14 @@ import React, {Component} from "react";
 import Card from "react-bootstrap/Card";
 import {Link} from "react-router-dom";
 import {fetchSession} from "../../actions";
+import axios from "axios";
+
+function sendSelectSession(sessionId){
+    const msg = {session: sessionId}
+    return axios.post('http://localhost:5000/selectsession', msg)
+        .catch(console.error)
+}
+
 
 export class SessionCard extends Component<{}> {
     render() {
@@ -29,7 +37,10 @@ export class SessionCard extends Component<{}> {
                         להוסיף גם שעות ומרווח
                     </Card.Text>
                     <Card.Text>
-                        <Link to='session' onClick={() => this.props.dispatch(fetchSession(session.info.id))}>
+                        <Link to='/calendar' onClick={() => {
+                            sendSelectSession(session.info.id)
+                                .then(() => this.props.dispatch(fetchSession()))
+                        }}>
                             בחר לוח מבחנים
                         </Link>
                     </Card.Text>

@@ -11,7 +11,7 @@ class SessionHome extends Component {
     constructor(props){
         super(props);
         console.warn('REMOVE HARD CODED ID');
-        this.props.dispatch(fetchSession(3)); //FIXME
+        this.props.dispatch(fetchSession()); //FIXME
 
 
         this.state = {blockerModalShow: false, testModalShow: false}
@@ -20,12 +20,11 @@ class SessionHome extends Component {
 
     closeModals() {
         this.setState({blockerModalShow: false, testModalShow: false})
-        this.props.dispatch(fetchSession(this.props.session.id))
+        this.props.dispatch(fetchSession())
     }
 
 
     render() {
-        console.log(this.props)
         // if (this.props.session.length){
         //     console.log('hey')
         //     this.props.history.push('/selectsession')

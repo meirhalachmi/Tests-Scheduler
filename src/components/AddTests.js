@@ -64,7 +64,8 @@ class AddTests extends React.Component{
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>מרווח מינימלי בין מבחנים</Form.Label>
-                                    <Form.Control required type="number" name="daysGap" defaultValue={30} step={1}
+                                    <Form.Control required type="number" name="daysGap"
+                                                  defaultValue={this.props.session.defaultGap} step={1}
                                                   min={2} max={365} //TODO: Change max to the number of days in the interval
                                     />
                                 </Form.Group>
@@ -107,7 +108,8 @@ class AddTests extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
-                                        <Form.Control required key={i} type="number" name={"optionalStartHours" + i.toString()} defaultValue={0} step={1}
+                                        <Form.Control required key={i} type="number" name={"optionalStartHours" + i.toString()}
+                                                      defaultValue={this.props.session.startHour} step={1}
                                                       min={this.props.session.startHour} max={this.props.session.endHour}
                                         />
                                     </Form.Group>
@@ -115,7 +117,8 @@ class AddTests extends React.Component{
                                 <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>שעת סיום</Form.Label>}
-                                        <Form.Control requiredkey={i} type="number" name={"optionalEndHours" + i.toString()} step={1} defaultValue={9}
+                                        <Form.Control requiredkey={i} type="number" name={"optionalEndHours" + i.toString()}
+                                                      step={1} defaultValue={this.props.session.endHour}
                                                       min={this.props.session.startHour} max={this.props.session.endHour} //TODO: Change max to the number of days in the interval
                                         />
                                     </Form.Group>

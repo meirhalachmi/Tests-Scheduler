@@ -25,7 +25,7 @@ class ScheduleCalendar extends Component {
     constructor(props) {
         super(props);
         console.warn('REMOVE HARD CODED ID');
-        this.props.dispatch(fetchSession(3)); //FIXME
+        this.props.dispatch(fetchSession());
 
         this.state = {
             optionalDays: [],
@@ -43,7 +43,7 @@ class ScheduleCalendar extends Component {
 
     closeModals() {
         this.setState({blockerModalShow: false, testModalShow: false})
-        this.props.dispatch(fetchSession(this.props.session.id))
+        this.props.dispatch(fetchSession())
     }
 
     componentDidMount(): void {
@@ -117,28 +117,30 @@ class ScheduleCalendar extends Component {
         return (
             <MaterialTitlePanel title={
                 <div>
-                    מבחנים
-                    <span style={{margin: '10px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule(this.props.session.id))}}/></span>
-                    <span><FontAwesomeIcon icon={faRobot} onClick={()=>{
-                        // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
-                        fetch('http://localhost:5000/runscheduler?session=' +
-                            this.props.session.id.toString())
-                            .then(() => {
-                                Sleep(300);
-                                this.props.dispatch(fetchScheduledTests(this.props.session.id))
-                            })
-                            .catch(console.error)
-                    }}/></span>
-                    <span style={{margin: '10px'}}>
+                    {/*מבחנים*/}
+                    <span style={{margin: '15px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
+                    <span style={{margin: '15px'}}>
+                        <FontAwesomeIcon icon={faRobot} onClick={()=>{
+                            // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
+                            fetch('http://localhost:5000/runscheduler?session=' +
+                                this.props.session.id.toString())
+                                .then(() => {
+                                    Sleep(300);
+                                    this.props.dispatch(fetchScheduledTests())
+                                })
+                                .catch(console.error)
+                        }}/>
+                    </span>
+                    <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faPlus} onClick={() => this.setState({testModalShow: true})}/>
                     </span>
-                    <span style={{margin: '10px'}}>
+                    <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faLock} onClick={() => this.setState({blockerModalShow: true})}/>
                     </span>
                 </div>
 
             } style={style}>
-                 <ModalForm title="הוסף אילוץ"
+                <ModalForm title="הוסף אילוץ"
                            show={this.state.blockerModalShow}
                            onHide={this.closeModals}>
                     <AddBlockers afterSend={this.closeModals}/>
@@ -232,7 +234,7 @@ class ScheduleCalendar extends Component {
                 if (event.type === 'test') {
                     let date = event.start;
                     date.setHours(0, 0, 0, 0);
-                    this.props.dispatch(unscheduleTest(this.props.session.id, event.id, date))
+                    this.props.dispatch(unscheduleTest(event.id, date))
                     this.setState({
                         selectedTestId: null,
                         optionalDays: []
@@ -242,7 +244,7 @@ class ScheduleCalendar extends Component {
             onSelectSlot={(slotInfo) => {
                 const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
                 if (isAnOption) {
-                    this.props.dispatch(scheduleTest(this.props.session.id, this.state.selectedTestId, slotInfo.start))
+                    this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
 
                     this.setState({
                         selectedTestId: null,
@@ -307,12 +309,14 @@ const mapStateToProps = (state) => {
             }, []),
         testEvents:
             state.schedule.scheduledTests.map(scheduledTestInfo => {
+                console.log('info: ', scheduledTestInfo)
                 const id = scheduledTestInfo.id;
                 const date = scheduledTestInfo.date;
                 if (isEmpty(testsDict)){
                     return []
                 }
                 const testToSchedule = testsDict[id];
+                console.log('dict+id ', testsDict, id);
                 return {
                     title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
                         return classesDict[cls] ? classesDict[cls].name : '';

@@ -67,9 +67,9 @@ class Subjects extends Component {
     constructor(props: P, context: any) {
         super(props, context);
         this.getGroupedSubjectsRequest = new Request(
-            'http://localhost:5000/groupedSubjects?session='+this.props.session.id.toString());
+            'http://localhost:5000/groupedSubjects');
         this.getSubjectsRequest = new Request(
-            'http://localhost:5000/subjects?session='+this.props.session.id.toString());
+            'http://localhost:5000/subjects');
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
             lists: [[]],
@@ -220,9 +220,7 @@ class Subjects extends Component {
 
             axios.post('http://localhost:5000/groupedSubjects', msg)
                 .then(response => response.json())
-                .catch(function (error) {
-                    console.log(error);
-                });
+                .catch(console.error);
         }
     }
 

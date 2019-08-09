@@ -27,7 +27,7 @@ function FetchActionCreator(name, url, postprocessorFunction=(json)=>(json)) {
     return function (sessionId) {
         return dispatch => {
             dispatch(request());
-            return fetch(url+'?session='+sessionId.toString())
+            return fetch(url)
                 .then(response => response.json())
                 .then(json => dispatch(receive(json)))
         }
@@ -44,34 +44,32 @@ const fetchTests = FetchActionCreator('Tests', 'http://localhost:5000/tests')
 const fetchSessionInfo = FetchActionCreator('Session', 'http://localhost:5000/sessioninfo')
 
 
-export const fetchScheduledTests = FetchActionCreator('Schedule', 'http://localhost:5000/currenttcheduledtests')
+export const fetchScheduledTests = FetchActionCreator('Schedule', 'http://localhost:5000/currentscheduledtests')
 
-export function fetchSession(sessionId) {
+export function fetchSession() {
     return dispatch => {
         dispatch({
             type: INIT_SESSION,
-            sessionId: sessionId
         })
-        dispatch(fetchSessionInfo(sessionId));
-        dispatch(fetchSubjects(sessionId));
-        dispatch(fetchClasses(sessionId));
-        dispatch(fetchBlockers(sessionId));
-        dispatch(fetchTests(sessionId));
-        dispatch(fetchScheduledTests(sessionId));
+        dispatch(fetchSessionInfo());
+        dispatch(fetchSubjects());
+        dispatch(fetchClasses());
+        dispatch(fetchBlockers());
+        dispatch(fetchTests());
+        dispatch(fetchScheduledTests());
     }
 
 }
 
 
-export const scheduleTest = (sessionId, testId, date) => {
+export const scheduleTest = (testId, date) => {
     // return {
     //   type: SCHEDULE,
     //   testId,
     //   date
-    // }
+    // }scheduledTests
     return dispatch => {
         const msg = {
-            session: sessionId.toString(),
             testid: testId.toString(),
             date: date
         }
@@ -88,16 +86,15 @@ export const scheduleTest = (sessionId, testId, date) => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests(sessionId))
+                return dispatch(fetchScheduledTests())
             })
     }
 
 }
 
-export const unscheduleTest = (sessionId, testId, date) => {
+export const unscheduleTest = (testId, date) => {
     return dispatch => {
         const msg = {
-            session: sessionId.toString(),
             testid: testId.toString(),
             date: date
         }
@@ -114,16 +111,15 @@ export const unscheduleTest = (sessionId, testId, date) => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests(sessionId))
+                return dispatch(fetchScheduledTests())
             })
     }
 }
 
 
-export const resetSchedule = (sessionId) => {
+export const resetSchedule = () => {
     return dispatch => {
         const msg = {
-            session: sessionId.toString(),
         }
         return axios.post('http://localhost:5000/resetschedule', msg)
             .then(
@@ -136,7 +132,7 @@ export const resetSchedule = (sessionId) => {
             )
             .then(() => {
                 Sleep(1000);
-                return dispatch(fetchScheduledTests(sessionId))
+                return dispatch(fetchScheduledTests())
             })
     }
 }
