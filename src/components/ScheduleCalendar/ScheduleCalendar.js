@@ -17,7 +17,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {daysBetween, isEmpty, Sleep} from "../../utils/utils";
+import {isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -359,12 +359,14 @@ const mapStateToProps = (state) => {
             }, []),
         testEvents:
             state.schedule.scheduledTests.map(scheduledTestInfo => {
+                console.log('info: ', scheduledTestInfo)
                 const id = scheduledTestInfo.id;
                 const date = scheduledTestInfo.date;
                 if (isEmpty(testsDict)){
                     return []
                 }
                 const testToSchedule = testsDict[id];
+                console.log('dict+id ', testsDict, id);
                 return {
                     title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
                         return classesDict[cls] ? classesDict[cls].name : '';
