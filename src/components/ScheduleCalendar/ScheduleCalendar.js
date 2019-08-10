@@ -17,7 +17,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {isEmpty, Sleep} from "../../utils/utils";
+import {daysBetween, isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -241,15 +241,20 @@ class ScheduleCalendar extends Component {
             <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
                 <MaterialTitlePanel title={
                     <div>
-                        <DropdownButton id="dropdown-basic-button" variant="secondary" title="עבור ללוח שמור"
-                        >
-                            {this.props.savedSchedules.map(savedSchedule => (
-                                <Dropdown.Item onSelect={()=>(
-                                    this.props.dispatch(
-                                        fetchScheduledTests('?storeid='+savedSchedule.storeid)
-                                    )
-                                )}>{savedSchedule.name}</Dropdown.Item>
-                            ))}
+                        <DropdownButton id="dropdown-basic-button"
+                                        variant="secondary" title="עבור ללוח שמור">
+                            {this.props.savedSchedules.map(savedSchedule => {
+                                const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
+                                return (
+                                    <Dropdown.Item onSelect={() => (
+                                        this.props.dispatch(
+                                            fetchScheduledTests('?storeid=' + savedSchedule.storeid)
+                                        )
+                                    )}>{savedSchedule.name + " - " }
+                                        <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
+                                    </Dropdown.Item>
+                                );
+                            })}
                         </DropdownButton>
                     </div>
                 }>
@@ -354,14 +359,12 @@ const mapStateToProps = (state) => {
             }, []),
         testEvents:
             state.schedule.scheduledTests.map(scheduledTestInfo => {
-                console.log('info: ', scheduledTestInfo)
                 const id = scheduledTestInfo.id;
                 const date = scheduledTestInfo.date;
                 if (isEmpty(testsDict)){
                     return []
                 }
                 const testToSchedule = testsDict[id];
-                console.log('dict+id ', testsDict, id);
                 return {
                     title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
                         return classesDict[cls] ? classesDict[cls].name : '';
