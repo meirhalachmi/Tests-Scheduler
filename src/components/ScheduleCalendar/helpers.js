@@ -3,7 +3,7 @@ import React from "react";
 export const styles = {
     sidebar: {
         width: 300,
-        marginLeft: '15%',
+        // marginLeft: '15%',
         // paddingRight: '16px'
         // height: "100%"
     },
@@ -24,7 +24,7 @@ export const styles = {
         paddingBottom: "30px",
         // height: "70%",
         backgroundColor: "white",
-        marginLeft: '15%'
+        // marginLeft: '15%'
     }
 };
 

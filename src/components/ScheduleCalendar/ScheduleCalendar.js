@@ -209,7 +209,7 @@ class ScheduleCalendar extends Component {
         }
         // console.log(result)
         return (
-            <Sidebar {...sidebarProps}>
+            <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
                 {result.map(date => (
                     <div style={styles.content}>
                         {this.getBigCalendar(new Date(date))}
