@@ -4,18 +4,28 @@ import moment from "moment";
 import "./ScheduleCalendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "react-sidebar";
+import axios from "axios";
 
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
-import {fetchScheduledTests, fetchSession, resetSchedule, scheduleTest, unscheduleTest} from "../../actions";
+import {
+    fetchSavedSchedules,
+    fetchScheduledTests,
+    fetchSession,
+    resetSchedule,
+    scheduleTest,
+    unscheduleTest
+} from "../../actions";
 import {isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEraser, faLock, faPlus, faRobot} from "@fortawesome/free-solid-svg-icons";
+import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
 import {ModalForm} from "../ModalForm";
 import AddBlockers from "../AddBlockers";
 import AddTests from "../AddTests";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import Dropdown from "react-bootstrap/Dropdown";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -117,7 +127,20 @@ class ScheduleCalendar extends Component {
         return (
             <MaterialTitlePanel title={
                 <div>
-                    {/*מבחנים*/}
+                    <span style={{margin: '15px'}}>
+                        <FontAwesomeIcon icon={faSave} onClick={() => {
+                            const name = prompt('בחר שם:')
+                            if (name.length > 0){
+                                axios.post(
+                                    'http://localhost:5000/schedulerstatestore',
+                                    {name}
+                                )
+                                    .then(() => Sleep(500))
+                                    .then(this.props.dispatch(fetchSavedSchedules()))
+                                    .catch(console.error)
+                            }
+                        }}/>
+                    </span>
                     <span style={{margin: '15px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
                     <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faRobot} onClick={()=>{
@@ -150,6 +173,12 @@ class ScheduleCalendar extends Component {
                            onHide={this.closeModals}>
                     <AddTests afterSend={this.closeModals}/>
                 </ModalForm>
+                <ModalForm title="הוסף מבחן"
+                           show={this.state.storeNameShow}
+                           onHide={this.closeModals}>
+                    <AddTests afterSend={this.closeModals}/>
+                </ModalForm>
+
 
                 <div>
                     <div style={styles.divider} />
@@ -210,11 +239,26 @@ class ScheduleCalendar extends Component {
         // console.log(result)
         return (
             <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
-                {result.map(date => (
-                    <div style={styles.content}>
-                        {this.getBigCalendar(new Date(date))}
+                <MaterialTitlePanel title={
+                    <div>
+                        <DropdownButton id="dropdown-basic-button" variant="secondary" title="עבור ללוח שמור"
+                        >
+                            {this.props.savedSchedules.map(savedSchedule => (
+                                <Dropdown.Item onSelect={()=>(
+                                    this.props.dispatch(
+                                        fetchScheduledTests('?storeid='+savedSchedule.storeid)
+                                    )
+                                )}>{savedSchedule.name}</Dropdown.Item>
+                            ))}
+                        </DropdownButton>
                     </div>
-                ))}
+                }>
+                    {result.map(date => (
+                        <div style={styles.content}>
+                            {this.getBigCalendar(new Date(date))}
+                        </div>
+                    ))}
+                </MaterialTitlePanel>
             </Sidebar>
         );
     }
@@ -275,6 +319,7 @@ const mapStateToProps = (state) => {
         classesDict: classesDict,
         testsDict: testsDict,
         scheduledTests: state.schedule.scheduledTests,
+        savedSchedules: state.savedSchedules.items,
         testsToSchedule: state.tests.items.map(
             test => {
                 const alreadyScheduledCount = state.schedule.scheduledTests.filter(st => st.id === test.id).length;

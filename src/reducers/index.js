@@ -100,6 +100,7 @@ export default combineReducers({
     classes : ReducerCreator('Classes'),
     blockers : ReducerCreator('Blockers'),
     tests : ReducerCreator('Tests'),
+    savedSchedules : ReducerCreator('ScheduleStore'),
     // scheduledTests : ReducerCreator('Scheduled_Tests'),
     schedule: schedulerState
 })
