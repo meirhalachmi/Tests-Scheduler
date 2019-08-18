@@ -6,7 +6,6 @@ import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
 import './App.css'
 import Subjects from "../Subjects/Subjects";
-import AddSubjects from "../AddSubjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar";
 import AddTests from "../AddTests";
 import Home from "../Home/Home";
@@ -24,10 +23,6 @@ class NavRouterLink extends Component<{}> {
 
 class AsyncApp extends Component{
     componentDidMount(): void {
-        const {dispatch} = this.props
-        // if (this.props.session.id !== null){
-        //     dispatch(fetchSession(this.props.session.id))
-        // }
     }
 
     render() {
@@ -35,21 +30,20 @@ class AsyncApp extends Component{
             <Container>
                 <Router>
                     <div style={{alignItems: ""}}>
-                        <nav>
-                            <Navbar bg="light" variant="light">
-                                <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>
-                                <Nav className="mr-auto">
-                                    <NavRouterLink to="/session">סשן</NavRouterLink>
-                                    <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>
-                                    <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>
-                                    <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>
-                                </Nav>
-                            </Navbar>
-                        </nav>
+                        {/*<nav>*/}
+                        {/*    <Navbar bg="light" variant="light">*/}
+                        {/*        <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>*/}
+                        {/*        <Nav className="mr-auto">*/}
+                        {/*            <NavRouterLink to="/session">סשן</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>*/}
+                        {/*        </Nav>*/}
+                        {/*    </Navbar>*/}
+                        {/*</nav>*/}
                         {/*<hr />*/}
                         <Switch>
                             <Route path="/home" component={Home}/>
-                            <Route path="/addsubjects" component={AddSubjects}/>
                             <Route path="/subjects" component={Subjects}/>
                             <Route path="/calendar" component={ScheduleCalendar}/>
                             <Route path="/addtests" component={AddTests}/>

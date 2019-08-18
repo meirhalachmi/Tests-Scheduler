@@ -26,6 +26,8 @@ import AddBlockers from "../AddBlockers";
 import AddTests from "../AddTests";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
+import Button from "react-bootstrap/Button";
+import ButtonToolbar from "react-bootstrap/ButtonToolbar";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -34,7 +36,6 @@ const localizer = BigCalendar.momentLocalizer(moment);
 class ScheduleCalendar extends Component {
     constructor(props) {
         super(props);
-        console.warn('REMOVE HARD CODED ID');
         this.props.dispatch(fetchSession());
 
         this.state = {
@@ -103,8 +104,7 @@ class ScheduleCalendar extends Component {
                         selectedTestId: test_div_ids[selected],
                     })
                     fetch('http://localhost:5000/finddate?' +
-                        'testid='+test_div_ids[selected].toString() +
-                        '&session='+this.props.session.id.toString()
+                        'testid='+test_div_ids[selected].toString()
                     )
                         .then(response => response.json())
                         .then(res => {
@@ -126,7 +126,8 @@ class ScheduleCalendar extends Component {
 
         return (
             <MaterialTitlePanel title={
-                <div>
+                <>
+                    <div>
                     <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faSave} onClick={() => {
                             const name = prompt('בחר שם:')
@@ -141,12 +142,11 @@ class ScheduleCalendar extends Component {
                             }
                         }}/>
                     </span>
-                    <span style={{margin: '15px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
-                    <span style={{margin: '15px'}}>
+                        <span style={{margin: '15px'}}><FontAwesomeIcon icon={faEraser} onClick={()=>{this.props.dispatch(resetSchedule())}}/></span>
+                        <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faRobot} onClick={()=>{
                             // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
-                            fetch('http://localhost:5000/runscheduler?session=' +
-                                this.props.session.id.toString())
+                            fetch('http://localhost:5000/runscheduler')
                                 .then(() => {
                                     Sleep(300);
                                     this.props.dispatch(fetchScheduledTests())
@@ -154,13 +154,14 @@ class ScheduleCalendar extends Component {
                                 .catch(console.error)
                         }}/>
                     </span>
-                    <span style={{margin: '15px'}}>
+                        <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faPlus} onClick={() => this.setState({testModalShow: true})}/>
                     </span>
-                    <span style={{margin: '15px'}}>
+                        <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faLock} onClick={() => this.setState({blockerModalShow: true})}/>
                     </span>
-                </div>
+                    </div>
+                </>
 
             } style={style}>
                 <ModalForm title="הוסף אילוץ"
@@ -181,6 +182,8 @@ class ScheduleCalendar extends Component {
 
 
                 <div>
+                    <div>TODO: להווסיף פילטרים לפי כיתות ומקצועות</div>
+
                     <div style={styles.divider} />
                     {list}
                     {/*<a href="index.html" style={styles.sidebarLink}>*/}
@@ -241,21 +244,31 @@ class ScheduleCalendar extends Component {
             <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
                 <MaterialTitlePanel title={
                     <div>
-                        <DropdownButton id="dropdown-basic-button"
-                                        variant="secondary" title="עבור ללוח שמור">
-                            {this.props.savedSchedules.map(savedSchedule => {
-                                const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
-                                return (
-                                    <Dropdown.Item onSelect={() => (
-                                        this.props.dispatch(
-                                            fetchScheduledTests('?storeid=' + savedSchedule.storeid)
-                                        )
-                                    )}>{savedSchedule.name + " - " }
-                                        <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
-                                    </Dropdown.Item>
-                                );
-                            })}
-                        </DropdownButton>
+                        <span>רמת קושי: {this.props.scheduleDifficulty}</span>
+                        <ButtonToolbar>
+                            <DropdownButton id="dropdown-basic-button"
+                                            variant="secondary" title="עבור ללוח שמור">
+                                {this.props.savedSchedules.map(savedSchedule => {
+                                    const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
+                                    return (
+                                        <Dropdown.Item onSelect={() => (
+                                            this.props.dispatch(
+                                                fetchScheduledTests('?storeid=' + savedSchedule.storeid)
+                                            )
+                                        )}>{savedSchedule.name + " - " }
+                                            <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
+                                        </Dropdown.Item>
+                                    );
+                                })}
+                            </DropdownButton>
+                            <Button onClick={() => {
+                                    fetch('http://localhost:5000/debug').then(r =>
+                                    this.props.dispatch(fetchScheduledTests()))
+                            }}>שפר שיבוצים</Button>
+                         <Button onClick={() => {
+                             this.props.history.push("/selectsession")
+                         }}>בחר לוח שנה אחר</Button>
+                        </ButtonToolbar>
                     </div>
                 }>
                     {result.map(date => (
@@ -323,6 +336,7 @@ const mapStateToProps = (state) => {
         tests: state.tests.items,
         classesDict: classesDict,
         testsDict: testsDict,
+        scheduleDifficulty: state.schedule.difficulty,
         scheduledTests: state.schedule.scheduledTests,
         savedSchedules: state.savedSchedules.items,
         testsToSchedule: state.tests.items.map(
@@ -359,14 +373,12 @@ const mapStateToProps = (state) => {
             }, []),
         testEvents:
             state.schedule.scheduledTests.map(scheduledTestInfo => {
-                console.log('info: ', scheduledTestInfo)
                 const id = scheduledTestInfo.id;
                 const date = scheduledTestInfo.date;
                 if (isEmpty(testsDict)){
                     return []
                 }
                 const testToSchedule = testsDict[id];
-                console.log('dict+id ', testsDict, id);
                 return {
                     title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
                         return classesDict[cls] ? classesDict[cls].name : '';

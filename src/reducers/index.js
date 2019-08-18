@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 import {
-    INIT_SESSION,
+    // INIT_SESSION,
     RECEIVE,
     REQUEST,
     SCHEDULE,
@@ -38,6 +38,7 @@ function schedulerState (
         isFetching: false,
         scheduledTests: [],
         unscheduledTestsOptions: {},
+        difficulty: 0,
         horizon: true
     },
     action
@@ -68,6 +69,7 @@ function schedulerState (
         case RECEIVE + '_SCHEDULE':
             return Object.assign({}, state, {
                 isFetching: false,
+                difficulty: action.items.difficulty,
                 scheduledTests: action.items.scheduledTests.map(item => {
                     const date = new Date(item.date);
                     date.setHours(0,0,0,0)
