@@ -4,13 +4,40 @@ import {formatDate, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
+import {string} from "prop-types";
 
-class AddBlockers extends React.Component{
+class BlockerForm extends React.Component{
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {numOfInstances: 1}
+        const numOfInstances = this.props.blockerToEdit ? this.props.blockerToEdit.startDates.length : 1;
+        this.state = {numOfInstances: numOfInstances}
+
     }
+
+    getCurrentValue(fieldName){
+        if (this.props.blockerToEdit){
+            const blocker = this.props.blockerToEdit;
+            if (fieldName === 'name') {
+                return blocker['name'];
+            } else if (fieldName === 'participatingClasses') {
+                return blocker['participatingClasses'];
+            } else if (fieldName === 'participatingSubjects') {
+                return blocker['participatingSubjects'];
+            } else if (fieldName.startsWith('startDate')){
+                const ind = parseInt(fieldName.replace('startDate', ''));
+                return formatDate(blocker['startDates'][ind]);
+            } else if (fieldName.startsWith('endDate')){
+                const ind = parseInt(fieldName.replace('endDate', ''));
+                return formatDate(blocker['endDates'][ind]);
+            }
+            else {
+            }
+        } else {
+            return []
+        }
+    }
+
     render() {
         return (
             <Container style={{width: "85%"}}>
@@ -20,7 +47,10 @@ class AddBlockers extends React.Component{
                         <Col md={12}>
                             <Form.Group>
                                 <Form.Label>שם האילוץ</Form.Label>
-                                <Form.Control required type="text" name="name" placeholder="שם האילוץ"/>
+                                <Form.Control required type="text" name="name"
+                                              placeholder="שם האילוץ" defaultValue={this.getCurrentValue('name')}/>
+
+
                             </Form.Group>
                         </Col>
                     </Form.Row>
@@ -28,7 +58,8 @@ class AddBlockers extends React.Component{
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>כיתות משתתפות</Form.Label>
-                                <Form.Control required as="select" multiple name="participatingClasses">
+                                <Form.Control required as="select" multiple name="participatingClasses"
+                                              defaultValue={this.getCurrentValue('participatingClasses')}>
                                     {this.props.classes.map((s) => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
                                     ))}
@@ -39,7 +70,8 @@ class AddBlockers extends React.Component{
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>מקצועות משתתפים</Form.Label>
-                                <Form.Control required as="select" multiple name="participatingSubjects">
+                                <Form.Control required as="select" multiple name="participatingSubjects"
+                                              defaultValue={this.getCurrentValue('participatingSubjects')}>
                                     {this.props.subjects.map((s) => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
                                     ))}
@@ -51,13 +83,13 @@ class AddBlockers extends React.Component{
 
                     {range(0, this.state.numOfInstances-1).map(i => {
                         return (
-
-                            <Form.Row>
+                            <Form.Row id={i}>
                                 <Col md={6}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>תאריך התחלה</Form.Label>}
                                         <Form.Control required type="date" name={"startDate" + i.toString()}
                                                       min={this.props.minDate} max={this.props.maxDate}
+                                                      defaultValue={this.getCurrentValue("startDate" + i.toString())}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -66,6 +98,7 @@ class AddBlockers extends React.Component{
                                         {i === 0 && <Form.Label>תאריך סיום</Form.Label>}
                                         <Form.Control required type="date" name={"endDate" + i.toString()}
                                                       min={this.props.minDate} max={this.props.maxDate}
+                                                      defaultValue={this.getCurrentValue("endDate" + i.toString())}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -92,7 +125,7 @@ class AddBlockers extends React.Component{
 
                     <Form.Row>
                         <Col md={3}>
-                            <Button type="Submit">שלח</Button>
+                            <Button type="Submit">{this.props.blockerToEdit ? "עדכן אילוץ" : "הוסף אילוץ"}</Button>
                         </Col>
                     </Form.Row>
                 </Form>
@@ -112,6 +145,9 @@ class AddBlockers extends React.Component{
                 .map( i => e.target['startDate' + i].value)],
             endDates: [range(0, this.state.numOfInstances-1)
                 .map( i => e.target['endDate' + i].value)],
+        };
+        if (this.props.blockerToEdit){
+            msg['id'] = this.props.blockerToEdit.id;
         }
         axios.post('http://localhost:5000/blockers', msg)
             .catch(function (error) {
@@ -132,8 +168,9 @@ const mapStateToProps = (state) => ({
     session: state.session.items,
     subjects : state.subjects.items,
     classes : state.classes.items,
+
     minDate: formatDate(state.session.items.startDate),
     maxDate: formatDate(state.session.items.endDate),
 
 })
-export default connect(mapStateToProps)(AddBlockers);
+export default connect(mapStateToProps)(BlockerForm);

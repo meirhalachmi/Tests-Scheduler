@@ -1,4 +1,5 @@
 import React from "react";
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
 export const styles = {
     sidebar: {
@@ -31,10 +32,14 @@ export const styles = {
 export function Event({event}) {
     const color = event.type === 'blocker' ? 'red' : 'blue';
     return (
-        <div style={{backgroundColor: color, fontSize: '15px'}}>
-            <strong>{event.title}</strong>
-            {event.desc && ':  ' + event.desc}
-        </div>
+        <>
+            <ContextMenuTrigger id={event.type + event.id.toString()}>
+                <div style={{backgroundColor: color, fontSize: '15px'}}>
+                    <strong>{event.title}</strong>
+                    {event.desc && ':  ' + event.desc}
+                </div>
+            </ContextMenuTrigger>
+        </>
     )
 }
 

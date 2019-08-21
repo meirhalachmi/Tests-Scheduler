@@ -7,10 +7,10 @@ import Container from 'react-bootstrap/Container'
 import './App.css'
 import Subjects from "../Subjects/Subjects";
 import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar";
-import AddTests from "../AddTests";
+import AddTests from "../TestForm";
 import Home from "../Home/Home";
 import PropTypes from "prop-types";
-import AddBlockers from "../AddBlockers";
+import AddBlockers from "../BlockerForm";
 import SessionSetup from "../SetupSession";
 import SelectSession from "../SelectSession";
 import SessionHome from "../SessionHome";

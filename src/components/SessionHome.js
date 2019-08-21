@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 import Button from "react-bootstrap/Button";
 import {connect} from "react-redux";
-import AddBlockers from "./AddBlockers";
-import AddTests from "./AddTests";
+import AddBlockers from "./BlockerForm";
+import AddTests from "./TestForm";
 import {fetchSession} from "../actions";
 import ScheduleCalendar from "./ScheduleCalendar/ScheduleCalendar";
 import {ModalForm} from "./ModalForm";

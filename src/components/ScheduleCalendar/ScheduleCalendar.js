@@ -3,6 +3,7 @@ import BigCalendar from "react-big-calendar";
 import moment from "moment";
 import "./ScheduleCalendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "./react-contextmenu.css"
 import Sidebar from "react-sidebar";
 import axios from "axios";
 
@@ -22,12 +23,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
 import {ModalForm} from "../ModalForm";
-import AddBlockers from "../AddBlockers";
-import AddTests from "../AddTests";
+import AddBlockers from "../BlockerForm";
+import AddTests from "../TestForm";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
+import {ContextMenu, MenuItem} from "react-contextmenu";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -44,6 +46,10 @@ class ScheduleCalendar extends Component {
             scheduledTests: [],
             testEvents: [],
 
+            modalFormData: {
+                type: null,
+                editedId: null
+            },
             blockerModalShow: false, testModalShow: false
         };
         this.customDayPropGetter = this.customDayPropGetter.bind(this)
@@ -54,6 +60,10 @@ class ScheduleCalendar extends Component {
 
     closeModals() {
         this.setState({blockerModalShow: false, testModalShow: false})
+        this.setState({modalFormData: {
+                type: null,
+                editedId: null
+            }})
         this.props.dispatch(fetchSession())
     }
 
@@ -155,29 +165,28 @@ class ScheduleCalendar extends Component {
                         }}/>
                     </span>
                         <span style={{margin: '15px'}}>
-                        <FontAwesomeIcon icon={faPlus} onClick={() => this.setState({testModalShow: true})}/>
+                        <FontAwesomeIcon icon={faPlus} onClick={() => this.showTestForm()}/>
                     </span>
                         <span style={{margin: '15px'}}>
-                        <FontAwesomeIcon icon={faLock} onClick={() => this.setState({blockerModalShow: true})}/>
+                        <FontAwesomeIcon icon={faLock} onClick={() => this.showBlockerForm()}/>
                     </span>
                     </div>
                 </>
 
             } style={style}>
                 <ModalForm title="הוסף אילוץ"
-                           show={this.state.blockerModalShow}
+                           show={this.state.modalFormData.type === "blocker"}
                            onHide={this.closeModals}>
-                    <AddBlockers afterSend={this.closeModals}/>
+                    <AddBlockers afterSend={this.closeModals} blockerToEdit={
+                        this.state.modalFormData.type === 'blocker' ? this.state.modalFormData.editedId : null
+                    }/>
                 </ModalForm>
                 <ModalForm title="הוסף מבחן"
-                           show={this.state.testModalShow}
+                           show={this.state.modalFormData.type === "test"}
                            onHide={this.closeModals}>
-                    <AddTests afterSend={this.closeModals}/>
-                </ModalForm>
-                <ModalForm title="הוסף מבחן"
-                           show={this.state.storeNameShow}
-                           onHide={this.closeModals}>
-                    <AddTests afterSend={this.closeModals}/>
+                    <AddTests afterSend={this.closeModals} testToEdit={
+                        this.state.modalFormData.type === 'test' ? this.state.modalFormData.editedId : null
+                    }/>
                 </ModalForm>
 
 
@@ -262,12 +271,12 @@ class ScheduleCalendar extends Component {
                                 })}
                             </DropdownButton>
                             <Button onClick={() => {
-                                    fetch('http://localhost:5000/debug').then(r =>
+                                fetch('http://localhost:5000/debug').then(r =>
                                     this.props.dispatch(fetchScheduledTests()))
                             }}>שפר שיבוצים</Button>
-                         <Button onClick={() => {
-                             this.props.history.push("/selectsession")
-                         }}>בחר לוח שנה אחר</Button>
+                            <Button onClick={() => {
+                                this.props.history.push("/selectsession")
+                            }}>בחר לוח שנה אחר</Button>
                         </ButtonToolbar>
                     </div>
                 }>
@@ -277,6 +286,43 @@ class ScheduleCalendar extends Component {
                         </div>
                     ))}
                 </MaterialTitlePanel>
+                {
+                    this.props.testEvents.filter(event => event.id).map(event => (
+                        <ContextMenu id={event.type + event.id.toString()} rtl>
+                            <MenuItem onClick={() => this.showTestForm(this.props.testsDict[event.id])}>
+                                <div>ערוך</div>
+                            </MenuItem>
+                            <MenuItem data={{foo: 'bar'}} onClick={console.log}>
+                                נעל
+                            </MenuItem>
+                            <MenuItem divider />
+                        </ContextMenu>
+                    ))}
+                {
+                    this.props.blockerEvents.map(event => (
+                        <ContextMenu id={event.type + event.id.toString()} rtl>
+                            <MenuItem onClick={() => this.showBlockerForm(this.props.blockersDict[event.id])}>
+                                <div>ערוך</div>
+                            </MenuItem>
+                            <MenuItem onClick={() => {
+                                fetch("http://localhost:5000/blockers", {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({id: event.id})
+                                })
+                                    .then(response => response.json())
+                                    .then(() => (this.props.dispatch(fetchSession())));
+
+                            }}>
+                                מחק
+                            </MenuItem>
+                            <MenuItem divider />
+                        </ContextMenu>
+                    ))
+                }
+
             </Sidebar>
         );
     }
@@ -323,19 +369,35 @@ class ScheduleCalendar extends Component {
 
         />;
     }
+
+    showTestForm(testToEdit = null) {
+        this.setState({modalFormData: {
+                type: 'test',
+                editedId: testToEdit
+            }})
+    }
+
+    showBlockerForm(blockerToEdit = null) {
+        this.setState({modalFormData: {
+                type: 'blocker',
+                editedId: blockerToEdit
+            }})
+    }
 }
 
 const mapStateToProps = (state) => {
     let classesDict = state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     let testsDict = state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
+    let blockersDict = state.blockers.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     return ({
         session: state.session.items,
         subjects: state.subjects.items,
         classes: state.classes.items,
         blockers: state.blockers.items,
         tests: state.tests.items,
-        classesDict: classesDict,
-        testsDict: testsDict,
+        classesDict,
+        testsDict,
+        blockersDict,
         scheduleDifficulty: state.schedule.difficulty,
         scheduledTests: state.schedule.scheduledTests,
         savedSchedules: state.savedSchedules.items,
@@ -386,7 +448,7 @@ const mapStateToProps = (state) => {
                     start: new Date(date),
                     end: new Date(date),
                     type: 'test',
-                    id: id
+                    id: id,
                 }
             })
     });
