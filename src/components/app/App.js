@@ -30,19 +30,20 @@ class AsyncApp extends Component{
             <Container>
                 <Router>
                     <div style={{alignItems: ""}}>
-                        {/*<nav>*/}
-                        {/*    <Navbar bg="light" variant="light">*/}
-                        {/*        <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>*/}
-                        {/*        <Nav className="mr-auto">*/}
-                        {/*            <NavRouterLink to="/session">סשן</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>*/}
-                        {/*        </Nav>*/}
-                        {/*    </Navbar>*/}
-                        {/*</nav>*/}
-                        {/*<hr />*/}
+                        <nav>
+                            <Navbar bg="light" variant="light">
+                                <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>
+                                <Nav className="mr-auto">
+                                    <NavRouterLink to="/session">סשן</NavRouterLink>
+                                    <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>
+                                    <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>
+                                    <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>
+                                </Nav>
+                            </Navbar>
+                        </nav>
+                        <hr />
                         <Switch>
+                            <Route path="/" component={ScheduleCalendar}/>
                             <Route path="/home" component={Home}/>
                             <Route path="/subjects" component={Subjects}/>
                             <Route path="/calendar" component={ScheduleCalendar}/>
