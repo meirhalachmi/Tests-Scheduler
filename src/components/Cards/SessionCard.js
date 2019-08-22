@@ -6,7 +6,7 @@ import axios from "axios";
 
 function sendSelectSession(sessionId){
     const msg = {session: sessionId}
-    return axios.post('http://localhost:5000/selectsession', msg)
+    return axios.post('https://tests-scheduler-app.herokuapp.com/selectsession', msg)
         .catch(console.error)
 }
 

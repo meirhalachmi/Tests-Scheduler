@@ -246,7 +246,7 @@ subject: 29
             msg['id'] = this.props.testToEdit.id;
         }
 
-        axios.post('http://localhost:5000/tests', msg)
+        axios.post('https://tests-scheduler-app.herokuapp.com/tests', msg)
             .catch(function (error) {
                 console.error(error);
                 alert(error);

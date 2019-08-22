@@ -40,7 +40,7 @@ class SetupSession extends React.Component {
             classes: [this.state.classes],
             ...this.state.defaults
         }
-        axios.post('http://localhost:5000/initsession', msg)
+        axios.post('https://tests-scheduler-app.herokuapp.com/initsession', msg)
             .then(res => res.data)
             .then(res => this.props.dispatch(fetchSession(res.session)))
             .then(() => this.props.history.push('/subjects'))

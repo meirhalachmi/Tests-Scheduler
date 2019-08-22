@@ -113,7 +113,7 @@ class ScheduleCalendar extends Component {
                     this.setState({
                         selectedTestId: test_div_ids[selected],
                     })
-                    fetch('http://localhost:5000/finddate?' +
+                    fetch('https://tests-scheduler-app.herokuapp.com/finddate?' +
                         'testid='+test_div_ids[selected].toString()
                     )
                         .then(response => response.json())
@@ -143,7 +143,7 @@ class ScheduleCalendar extends Component {
                             const name = prompt('בחר שם:')
                             if (name.length > 0){
                                 axios.post(
-                                    'http://localhost:5000/schedulerstatestore',
+                                    'https://tests-scheduler-app.herokuapp.com/schedulerstatestore',
                                     {name}
                                 )
                                     .then(() => Sleep(500))
@@ -156,7 +156,7 @@ class ScheduleCalendar extends Component {
                         <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faRobot} onClick={()=>{
                             // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
-                            fetch('http://localhost:5000/runscheduler')
+                            fetch('https://tests-scheduler-app.herokuapp.com/runscheduler')
                                 .then(() => {
                                     Sleep(300);
                                     this.props.dispatch(fetchScheduledTests())
@@ -271,7 +271,7 @@ class ScheduleCalendar extends Component {
                                 })}
                             </DropdownButton>
                             <Button onClick={() => {
-                                fetch('http://localhost:5000/debug').then(r =>
+                                fetch('https://tests-scheduler-app.herokuapp.com/debug').then(r =>
                                     this.props.dispatch(fetchScheduledTests()))
                             }}>שפר שיבוצים</Button>
                             <Button onClick={() => {
@@ -305,7 +305,7 @@ class ScheduleCalendar extends Component {
                                 <div>ערוך</div>
                             </MenuItem>
                             <MenuItem onClick={() => {
-                                fetch("http://localhost:5000/blockers", {
+                                fetch("https://tests-scheduler-app.herokuapp.com/blockers", {
                                     method: 'DELETE',
                                     headers: {
                                         'Content-Type': 'application/json',

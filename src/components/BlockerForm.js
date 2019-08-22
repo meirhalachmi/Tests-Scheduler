@@ -149,7 +149,7 @@ class BlockerForm extends React.Component{
         if (this.props.blockerToEdit){
             msg['id'] = this.props.blockerToEdit.id;
         }
-        axios.post('http://localhost:5000/blockers', msg)
+        axios.post('https://tests-scheduler-app.herokuapp.com/blockers', msg)
             .catch(function (error) {
                 console.error(error);
                 alert(error);
