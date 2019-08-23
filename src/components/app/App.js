@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { connect } from 'react-redux'
-import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
+import {BrowserRouter, Switch, Route, Link} from "react-router-dom";
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
@@ -28,7 +28,7 @@ class AsyncApp extends Component{
     render() {
         return(
             <Container>
-                <Router>
+                <BrowserRouter basename={process.env.PUBLIC_URL}>
                     <div style={{alignItems: ""}}>
                         <nav>
                             <Navbar bg="light" variant="light">
@@ -51,9 +51,10 @@ class AsyncApp extends Component{
                             <Route path="/sessionsetup" component={SessionSetup}/>
                             <Route path="/selectsession" component={SelectSession}/>
                             <Route path="/session" component={SessionHome}/>
+                            <Route component={() => (<div>404 Not found </div>)} />
                         </Switch>
                     </div>
-                </Router>
+                </BrowserRouter>
 
             </Container>
         )
