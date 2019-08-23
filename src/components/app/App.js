@@ -43,7 +43,6 @@ class AsyncApp extends Component{
                         </nav>
                         <hr />
                         <Switch>
-                            <Route path="/" component={ScheduleCalendar}/>
                             <Route path="/home" component={Home}/>
                             <Route path="/subjects" component={Subjects}/>
                             <Route path="/calendar" component={ScheduleCalendar}/>
