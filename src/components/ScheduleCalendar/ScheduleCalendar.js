@@ -284,7 +284,7 @@ class ScheduleCalendar extends Component {
                 </MaterialTitlePanel>
                 {
                     this.props.testEvents.filter(event => event.id).map(event => (
-                        <ContextMenu id={event.type + event.id.toString()} rtl>
+                        <ContextMenu id={"test" + event.id.toString()} rtl>
                             <MenuItem onClick={() => this.showTestForm({
                                 testToEdit: this.props.testsDict[event.id]
                             })}>
@@ -297,10 +297,10 @@ class ScheduleCalendar extends Component {
                         </ContextMenu>
                     ))}
                 {
-                    this.props.blockerEvents.map(event => (
-                        <ContextMenu id={event.type + event.id.toString()} rtl>
+                    this.props.blockers.map(blocker => (
+                        <ContextMenu id={"blocker" + blocker.id.toString()} rtl>
                             <MenuItem onClick={() => this.showBlockerForm({
-                                blockerToEdit: this.props.blockersDict[event.id]
+                                blockerToEdit: this.props.blockersDict[blocker.id]
                             })}>
                                 <div>ערוך</div>
                             </MenuItem>
@@ -310,7 +310,7 @@ class ScheduleCalendar extends Component {
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
-                                    body: JSON.stringify({id: event.id})
+                                    body: JSON.stringify({id: blocker.id})
                                 })
                                     .catch(console.error)
                                     .then(() => (this.props.dispatch(fetchSession())));
