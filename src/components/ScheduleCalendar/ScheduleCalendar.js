@@ -312,7 +312,7 @@ class ScheduleCalendar extends Component {
                                     },
                                     body: JSON.stringify({id: event.id})
                                 })
-                                    .then(response => response.json())
+                                    .catch(console.error)
                                     .then(() => (this.props.dispatch(fetchSession())));
 
                             }}>
