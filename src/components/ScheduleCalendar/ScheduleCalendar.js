@@ -29,7 +29,7 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
-import {ContextMenu, MenuItem} from "react-contextmenu";
+import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
 
@@ -93,7 +93,7 @@ class ScheduleCalendar extends Component {
 
 
         const testsGroupedBySubject = groupBy(props.testsToSchedule, info => info.test.subject);
-        const subjectIdsSortedList = Object.keys(testsGroupedBySubject).sort(
+        const subjectIdsSortedList = isEmpty(this.props.subjectsDict) ? [] : Object.keys(testsGroupedBySubject).sort(
             (a, b) => this.props.subjectsDict[a].name > this.props.subjectsDict[b].name ? 1 : -1
         );
         subjectIdsSortedList.forEach(subjectId => {
@@ -108,15 +108,17 @@ class ScheduleCalendar extends Component {
                 const color = numOfOptionalDates > 0 ? 'blue' : 'red';
                 test_div.push(
                     (<div className="test">
-                        <div className="name">
-                            <span style={{color: color}}>[{numOfOptionalDates}]</span>
-                            {test.name} - ({info.howManyLeft} מתוך {test.numOfTests})
-                        </div>
-                        <div className="classes">
-                            {test.participatingClasses.map(cls => {
-                                return props.classesDict[cls] ? props.classesDict[cls].name : '';
-                            }).join(', ')}
-                        </div>
+                        <ContextMenuTrigger id={"test" + test.id.toString()}>
+                            <div className="name">
+                                <span style={{color: color}}>[{numOfOptionalDates}]</span>
+                                {test.name} - ({info.howManyLeft} מתוך {test.numOfTests})
+                            </div>
+                            <div className="classes">
+                                {test.participatingClasses.map(cls => {
+                                    return props.classesDict[cls] ? props.classesDict[cls].name : '';
+                                }).join(', ')}
+                            </div>
+                        </ContextMenuTrigger>
                     </div>)
                 )
             });
@@ -155,7 +157,7 @@ class ScheduleCalendar extends Component {
             subjectsDiv.push(
                 <Card>
                     <Accordion.Toggle as={Card.Header} eventKey={subjectId}>
-                        {this.props.subjectsDict[subjectId].name}
+                        {this.props.subjectsDict[subjectId] ? this.props.subjectsDict[subjectId].name : ''}
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey={subjectId}>
                         <Card.Body style={{padding: 0}}>{list}</Card.Body>
@@ -260,7 +262,7 @@ class ScheduleCalendar extends Component {
         const result = [];
 
         if (endDate.isBefore(startDate)) {
-            throw "End date must be greated than start date."
+            throw "End date must be greater than start date."
         }
 
         while (startDate.isBefore(endDate)) {
@@ -269,54 +271,62 @@ class ScheduleCalendar extends Component {
         }
         // console.log(result)
         return (
-            <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
-                <MaterialTitlePanel title={
-                    <div>
-                        <span>רמת קושי: {this.props.scheduleDifficulty}</span>
-                        <ButtonToolbar>
-                            <DropdownButton id="dropdown-basic-button"
-                                            variant="secondary" title="עבור ללוח שמור">
-                                {this.props.savedSchedules.map(savedSchedule => {
-                                    const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
-                                    return (
-                                        <Dropdown.Item onSelect={() => (
-                                            this.props.dispatch(
-                                                fetchScheduledTests('?storeid=' + savedSchedule.storeid)
-                                            )
-                                        )}>{savedSchedule.name + " - " }
-                                            <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
-                                        </Dropdown.Item>
-                                    );
-                                })}
-                            </DropdownButton>
-                            <Button onClick={() => {
-                                fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
-                                    this.props.dispatch(fetchScheduledTests()))
-                            }}>שפר שיבוצים</Button>
-                            <Button onClick={() => {
-                                this.props.history.push("/selectsession")
-                            }}>בחר לוח שנה אחר</Button>
-                        </ButtonToolbar>
-                    </div>
-                }>
-                    {result.map(date => (
-                        <div style={styles.content}>
-                            {this.getBigCalendar(new Date(date))}
+            <>
+                <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
+                    <MaterialTitlePanel title={
+                        <div>
+                            <span>רמת קושי: {this.props.scheduleDifficulty}</span>
+                            <ButtonToolbar>
+                                <DropdownButton id="dropdown-basic-button"
+                                                variant="secondary" title="עבור ללוח שמור">
+                                    {this.props.savedSchedules.map(savedSchedule => {
+                                        const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
+                                        return (
+                                            <Dropdown.Item onSelect={() => (
+                                                this.props.dispatch(
+                                                    fetchScheduledTests('?storeid=' + savedSchedule.storeid)
+                                                )
+                                            )}>{savedSchedule.name + " - " }
+                                                <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
+                                            </Dropdown.Item>
+                                        );
+                                    })}
+                                </DropdownButton>
+                                <Button onClick={() => {
+                                    fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
+                                        this.props.dispatch(fetchScheduledTests()))
+                                }}>שפר שיבוצים</Button>
+                                <Button onClick={() => {
+                                    this.props.history.push("/selectsession")
+                                }}>בחר לוח שנה אחר</Button>
+                            </ButtonToolbar>
                         </div>
-                    ))}
-                </MaterialTitlePanel>
+                    }>
+                        {result.map(date => (
+                            <div style={styles.content}>
+                                {this.getBigCalendar(new Date(date))}
+                            </div>
+                        ))}
+                    </MaterialTitlePanel>
+
+                </Sidebar>
+                <ContextMenu id={"test"}>
+                    <MenuItem>
+                        <div>משהו</div>
+                    </MenuItem>
+                </ContextMenu>
                 {
-                    this.props.testEvents.filter(event => event.id).map(event => (
-                        <ContextMenu id={"test" + event.id.toString()} rtl>
+                    this.props.tests.filter(test => test.id).map(test => (
+                        <ContextMenu id={"test" + test.id.toString()} rtl>
                             <MenuItem onClick={() => this.showTestForm({
-                                testToEdit: this.props.testsDict[event.id]
+                                testToEdit: this.props.testsDict[test.id]
                             })}>
                                 <div>ערוך</div>
                             </MenuItem>
                             {/*<MenuItem onClick={console.log}>*/}
                             {/*    נעל*/}
                             {/*</MenuItem>*/}
-                            <MenuItem onClick={() => this.fetch_delete('/tests', event.id)}>
+                            <MenuItem onClick={() => this.fetch_delete('/tests', test.id)}>
                                 מחק
                             </MenuItem>
                             {/*<MenuItem divider />*/}
@@ -337,8 +347,7 @@ class ScheduleCalendar extends Component {
                         </ContextMenu>
                     ))
                 }
-
-            </Sidebar>
+            </>
         );
     }
 
@@ -468,8 +477,9 @@ const mapStateToProps = (state) => {
                     return []
                 }
                 const testToSchedule = testsDict[id];
+                const testName = testToSchedule ? testToSchedule.name : '';
                 return {
-                    title: testToSchedule.name + ' (' + testToSchedule.participatingClasses.map(cls => {
+                    title: testName + ' (' + testToSchedule.participatingClasses.map(cls => {
                         return classesDict[cls] ? classesDict[cls].name : '';
                     }).join(', ') + ')',
                     start: new Date(date),
