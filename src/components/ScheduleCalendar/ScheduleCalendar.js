@@ -45,7 +45,7 @@ class ScheduleCalendar extends Component {
             selectedTestId: null,
             scheduledTests: [],
             testEvents: [],
-
+            filter: () => true,
             modalFormData: {
                 type: null,
                 props: null
@@ -293,6 +293,21 @@ class ScheduleCalendar extends Component {
                             <MenuItem data={{foo: 'bar'}} onClick={console.log}>
                                 נעל
                             </MenuItem>
+                            <MenuItem onClick={() => {
+                                fetch(process.env.REACT_APP_API_URL + "/tests", {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({id: event.id})
+                                })
+                                    .catch(console.error)
+                                    .then(() => Sleep(300))
+                                    .then(() => (this.props.dispatch(fetchSession())));
+
+                            }}>
+                                מחק
+                            </MenuItem>
                             <MenuItem divider />
                         </ContextMenu>
                     ))}
@@ -313,6 +328,7 @@ class ScheduleCalendar extends Component {
                                     body: JSON.stringify({id: blocker.id})
                                 })
                                     .catch(console.error)
+                                    .then(() => Sleep(300))
                                     .then(() => (this.props.dispatch(fetchSession())));
 
                             }}>
