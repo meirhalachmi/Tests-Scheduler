@@ -67,9 +67,9 @@ class Subjects extends Component {
     constructor(props: P, context: any) {
         super(props, context);
         this.getGroupedSubjectsRequest = new Request(
-            'https://tests-scheduler-app.herokuapp.com/groupedSubjects');
+            process.env.REACT_APP_API_URL + '/groupedSubjects');
         this.getSubjectsRequest = new Request(
-            'https://tests-scheduler-app.herokuapp.com/subjects');
+            process.env.REACT_APP_API_URL + '/subjects');
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
             lists: [[]],
@@ -218,7 +218,7 @@ class Subjects extends Component {
                 parallel_groups: [par_groups],
             };
 
-            axios.post('https://tests-scheduler-app.herokuapp.com/groupedSubjects', msg)
+            axios.post(process.env.REACT_APP_API_URL + '/groupedSubjects', msg)
                 .then(response => response.json())
                 .catch(console.error);
         }

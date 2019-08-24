@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { connect } from 'react-redux'
-import {BrowserRouter, Switch, Route, Link} from "react-router-dom";
+import {HashRouter, Switch, Route, Link} from "react-router-dom";
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
@@ -28,22 +28,24 @@ class AsyncApp extends Component{
     render() {
         return(
             <Container>
-                <BrowserRouter basename={process.env.PUBLIC_URL}>
+                <HashRouter basename={'/'}>
                     <div style={{alignItems: ""}}>
-                        <nav>
-                            <Navbar bg="light" variant="light">
-                                <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>
-                                <Nav className="mr-auto">
-                                    <NavRouterLink to="/session">סשן</NavRouterLink>
-                                    <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>
-                                    <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>
-                                    <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>
-                                </Nav>
-                            </Navbar>
-                        </nav>
+                        <li><Link to="/">Home</Link></li>
+                        <li><Link to="/selectsession">selectsession</Link></li>
+                        {/*<nav>*/}
+                        {/*    <Navbar bg="light" variant="light">*/}
+                        {/*        <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>*/}
+                        {/*        <Nav className="mr-auto">*/}
+                        {/*            <NavRouterLink to="/session">סשן</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>*/}
+                        {/*            <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>*/}
+                        {/*        </Nav>*/}
+                        {/*    </Navbar>*/}
+                        {/*</nav>*/}
                         <hr />
                         <Switch>
-                            <Route path="/" component={AsyncApp}/>
+                            <Route exact path="/" component={SelectSession}/>
                             <Route path="/home" component={Home}/>
                             <Route path="/subjects" component={Subjects}/>
                             <Route path="/calendar" component={ScheduleCalendar}/>
@@ -55,7 +57,7 @@ class AsyncApp extends Component{
                             <Route component={() => (<div>404 Not found </div>)} />
                         </Switch>
                     </div>
-                </BrowserRouter>
+                </HashRouter>
 
             </Container>
         )

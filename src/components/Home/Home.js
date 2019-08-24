@@ -30,7 +30,7 @@ class ApiList extends Component<{ parserFunction: (s?: any) => any }> {
 export default function Home() {
     return (
         <div>
-            <ApiList name="סשנים" url="https://tests-scheduler-app.herokuapp.com/sessionslist"/>
+            <ApiList name="סשנים" url={process.env.REACT_APP_API_URL + "/sessionslist"}/>
         </div>
     )
 }

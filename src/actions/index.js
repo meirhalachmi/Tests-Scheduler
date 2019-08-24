@@ -36,16 +36,16 @@ function FetchActionCreator(name, url) {
 }
 
 
-const fetchSubjects = FetchActionCreator('Subjects', 'https://tests-scheduler-app.herokuapp.com/subjects',
+const fetchSubjects = FetchActionCreator('Subjects', process.env.REACT_APP_API_URL + '/subjects',
     sortByName)
-const fetchClasses = FetchActionCreator('Classes', 'https://tests-scheduler-app.herokuapp.com/classes')
-const fetchBlockers = FetchActionCreator('Blockers', 'https://tests-scheduler-app.herokuapp.com/blockers')
-const fetchTests = FetchActionCreator('Tests', 'https://tests-scheduler-app.herokuapp.com/tests')
-const fetchSessionInfo = FetchActionCreator('Session', 'https://tests-scheduler-app.herokuapp.com/sessioninfo')
+const fetchClasses = FetchActionCreator('Classes', process.env.REACT_APP_API_URL + '/classes')
+const fetchBlockers = FetchActionCreator('Blockers', process.env.REACT_APP_API_URL + '/blockers')
+const fetchTests = FetchActionCreator('Tests', process.env.REACT_APP_API_URL + '/tests')
+const fetchSessionInfo = FetchActionCreator('Session', process.env.REACT_APP_API_URL + '/sessioninfo')
 
 
-export const fetchScheduledTests = FetchActionCreator('Schedule', 'https://tests-scheduler-app.herokuapp.com/currentscheduledtests')
-export const fetchSavedSchedules = FetchActionCreator('ScheduleStore', 'https://tests-scheduler-app.herokuapp.com/schedulerstatestore')
+export const fetchScheduledTests = FetchActionCreator('Schedule', process.env.REACT_APP_API_URL + '/currentscheduledtests')
+export const fetchSavedSchedules = FetchActionCreator('ScheduleStore', process.env.REACT_APP_API_URL + '/schedulerstatestore')
 
 export function fetchSession() {
     return dispatch => {
@@ -76,7 +76,7 @@ export const scheduleTest = (testId, date) => {
             testid: testId.toString(),
             date: date
         }
-        return axios.post('https://tests-scheduler-app.herokuapp.com/scheduletest', msg)
+        return axios.post(process.env.REACT_APP_API_URL + '/scheduletest', msg)
             .then(
                 dispatch(
                     {
@@ -101,7 +101,7 @@ export const unscheduleTest = (testId, date) => {
             testid: testId.toString(),
             date: date
         }
-        return axios.post('https://tests-scheduler-app.herokuapp.com/unscheduletest', msg)
+        return axios.post(process.env.REACT_APP_API_URL + '/unscheduletest', msg)
             .then(
                 dispatch(
                     {
@@ -124,7 +124,7 @@ export const resetSchedule = () => {
     return dispatch => {
         const msg = {
         }
-        return axios.post('https://tests-scheduler-app.herokuapp.com/resetschedule', msg)
+        return axios.post(process.env.REACT_APP_API_URL + '/resetschedule', msg)
             .then(
                 dispatch(
                     {

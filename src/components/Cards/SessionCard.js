@@ -6,7 +6,7 @@ import axios from "axios";
 
 function sendSelectSession(sessionId){
     const msg = {session: sessionId}
-    return axios.post('https://tests-scheduler-app.herokuapp.com/selectsession', msg)
+    return axios.post(process.env.REACT_APP_API_URL + '/selectsession', msg)
         .catch(console.error)
 }
 

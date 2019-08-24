@@ -40,7 +40,7 @@ class SetupSession extends React.Component {
             classes: [this.state.classes],
             ...this.state.defaults
         }
-        axios.post('https://tests-scheduler-app.herokuapp.com/initsession', msg)
+        axios.post(process.env.REACT_APP_API_URL + '/initsession', msg)
             .then(res => res.data)
             .then(res => this.props.dispatch(fetchSession(res.session)))
             .then(() => this.props.history.push('/subjects'))

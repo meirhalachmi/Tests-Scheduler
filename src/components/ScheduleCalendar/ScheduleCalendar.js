@@ -18,7 +18,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {daysBetween, isEmpty, Sleep} from "../../utils/utils";
+import {daysBetween, formatDate, isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -48,7 +48,7 @@ class ScheduleCalendar extends Component {
 
             modalFormData: {
                 type: null,
-                editedId: null
+                props: null
             },
             blockerModalShow: false, testModalShow: false
         };
@@ -62,7 +62,7 @@ class ScheduleCalendar extends Component {
         this.setState({blockerModalShow: false, testModalShow: false})
         this.setState({modalFormData: {
                 type: null,
-                editedId: null
+                props: null
             }})
         this.props.dispatch(fetchSession())
     }
@@ -113,7 +113,7 @@ class ScheduleCalendar extends Component {
                     this.setState({
                         selectedTestId: test_div_ids[selected],
                     })
-                    fetch('https://tests-scheduler-app.herokuapp.com/finddate?' +
+                    fetch(process.env.REACT_APP_API_URL + '/finddate?' +
                         'testid='+test_div_ids[selected].toString()
                     )
                         .then(response => response.json())
@@ -143,7 +143,7 @@ class ScheduleCalendar extends Component {
                             const name = prompt('בחר שם:')
                             if (name.length > 0){
                                 axios.post(
-                                    'https://tests-scheduler-app.herokuapp.com/schedulerstatestore',
+                                    process.env.REACT_APP_API_URL + '/schedulerstatestore',
                                     {name}
                                 )
                                     .then(() => Sleep(500))
@@ -156,7 +156,7 @@ class ScheduleCalendar extends Component {
                         <span style={{margin: '15px'}}>
                         <FontAwesomeIcon icon={faRobot} onClick={()=>{
                             // const interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 300);
-                            fetch('https://tests-scheduler-app.herokuapp.com/runscheduler')
+                            fetch(process.env.REACT_APP_API_URL + '/runscheduler')
                                 .then(() => {
                                     Sleep(300);
                                     this.props.dispatch(fetchScheduledTests())
@@ -177,16 +177,12 @@ class ScheduleCalendar extends Component {
                 <ModalForm title="הוסף אילוץ"
                            show={this.state.modalFormData.type === "blocker"}
                            onHide={this.closeModals}>
-                    <AddBlockers afterSend={this.closeModals} blockerToEdit={
-                        this.state.modalFormData.type === 'blocker' ? this.state.modalFormData.editedId : null
-                    }/>
+                    <AddBlockers afterSend={this.closeModals} {...this.state.modalFormData.props}/>
                 </ModalForm>
                 <ModalForm title="הוסף מבחן"
                            show={this.state.modalFormData.type === "test"}
                            onHide={this.closeModals}>
-                    <AddTests afterSend={this.closeModals} testToEdit={
-                        this.state.modalFormData.type === 'test' ? this.state.modalFormData.editedId : null
-                    }/>
+                    <AddTests afterSend={this.closeModals} {...this.state.modalFormData.props}/>
                 </ModalForm>
 
 
@@ -271,7 +267,7 @@ class ScheduleCalendar extends Component {
                                 })}
                             </DropdownButton>
                             <Button onClick={() => {
-                                fetch('https://tests-scheduler-app.herokuapp.com/debug').then(r =>
+                                fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
                                     this.props.dispatch(fetchScheduledTests()))
                             }}>שפר שיבוצים</Button>
                             <Button onClick={() => {
@@ -289,7 +285,9 @@ class ScheduleCalendar extends Component {
                 {
                     this.props.testEvents.filter(event => event.id).map(event => (
                         <ContextMenu id={event.type + event.id.toString()} rtl>
-                            <MenuItem onClick={() => this.showTestForm(this.props.testsDict[event.id])}>
+                            <MenuItem onClick={() => this.showTestForm({
+                                testToEdit: this.props.testsDict[event.id]
+                            })}>
                                 <div>ערוך</div>
                             </MenuItem>
                             <MenuItem data={{foo: 'bar'}} onClick={console.log}>
@@ -301,11 +299,13 @@ class ScheduleCalendar extends Component {
                 {
                     this.props.blockerEvents.map(event => (
                         <ContextMenu id={event.type + event.id.toString()} rtl>
-                            <MenuItem onClick={() => this.showBlockerForm(this.props.blockersDict[event.id])}>
+                            <MenuItem onClick={() => this.showBlockerForm({
+                                blockerToEdit: this.props.blockersDict[event.id]
+                            })}>
                                 <div>ערוך</div>
                             </MenuItem>
                             <MenuItem onClick={() => {
-                                fetch("https://tests-scheduler-app.herokuapp.com/blockers", {
+                                fetch(process.env.REACT_APP_API_URL + "/blockers", {
                                     method: 'DELETE',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -350,15 +350,25 @@ class ScheduleCalendar extends Component {
                 }
             }}
             onSelectSlot={(slotInfo) => {
-                const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
-                if (isAnOption) {
-                    this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
+                if (this.state.selectedTestId !== null){
+                    const isAnOption = this.state.optionalDays.includes(parseDateString(slotInfo['start']));
+                    if (isAnOption) {
+                        this.props.dispatch(scheduleTest(this.state.selectedTestId, slotInfo.start))
 
-                    this.setState({
-                        selectedTestId: null,
-                        optionalDays: []
+                        this.setState({
+                            selectedTestId: null,
+                            optionalDays: []
+                        })
+
+                    }
+                }
+                else {
+                    this.showBlockerForm({
+                        wantedDates: {
+                            start: formatDate(slotInfo.start),
+                            end: formatDate(slotInfo.end)
+                        }
                     })
-
                 }
             }}
             components={{
@@ -370,17 +380,17 @@ class ScheduleCalendar extends Component {
         />;
     }
 
-    showTestForm(testToEdit = null) {
+    showTestForm(testFormProps = null) {
         this.setState({modalFormData: {
                 type: 'test',
-                editedId: testToEdit
+                props: testFormProps
             }})
     }
 
-    showBlockerForm(blockerToEdit = null) {
+    showBlockerForm(blockerFormProps = null) {
         this.setState({modalFormData: {
                 type: 'blocker',
-                editedId: blockerToEdit
+                props: blockerFormProps
             }})
     }
 }

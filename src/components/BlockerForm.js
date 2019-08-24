@@ -31,11 +31,14 @@ class BlockerForm extends React.Component{
                 const ind = parseInt(fieldName.replace('endDate', ''));
                 return formatDate(blocker['endDates'][ind]);
             }
-            else {
+        } else if (this.props.wantedDates){
+            if (fieldName.startsWith('startDate')) {
+                return this.props.wantedDates.start;
+            } else if (fieldName.startsWith('endDate')) {
+                return this.props.wantedDates.end;
             }
-        } else {
-            return []
         }
+        return [];
     }
 
     render() {
@@ -149,7 +152,7 @@ class BlockerForm extends React.Component{
         if (this.props.blockerToEdit){
             msg['id'] = this.props.blockerToEdit.id;
         }
-        axios.post('https://tests-scheduler-app.herokuapp.com/blockers', msg)
+        axios.post(process.env.REACT_APP_API_URL + '/blockers', msg)
             .catch(function (error) {
                 console.error(error);
                 alert(error);

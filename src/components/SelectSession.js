@@ -11,7 +11,7 @@ class SelectSession extends React.Component{
         this.state = {
             sessions: []
         };
-        fetch('https://tests-scheduler-app.herokuapp.com/sessionslist')
+        fetch(process.env.REACT_APP_API_URL + '/sessionslist')
             .then(res => res.json())
             // .then(console.log)
             .then(sessions => this.setState({sessions: sessions}))
