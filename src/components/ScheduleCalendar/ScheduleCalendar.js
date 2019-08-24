@@ -36,6 +36,7 @@ const localizer = BigCalendar.momentLocalizer(moment);
 
 
 class ScheduleCalendar extends Component {
+
     constructor(props) {
         super(props);
         this.props.dispatch(fetchSession());
@@ -58,6 +59,7 @@ class ScheduleCalendar extends Component {
 
     }
 
+
     closeModals() {
         this.setState({blockerModalShow: false, testModalShow: false})
         this.setState({modalFormData: {
@@ -67,15 +69,18 @@ class ScheduleCalendar extends Component {
         this.props.dispatch(fetchSession())
     }
 
-    componentDidMount(): void {
-        // this.props.dispatch(fetchScheduledTests(this.props.session.id))
-        // this.interval = setInterval(() => this.props.dispatch(fetchScheduledTests()), 1000);
+    fetch_delete(endPoint, id) {
+        fetch(process.env.REACT_APP_API_URL + endPoint, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({id: id})
+        })
+            .catch(console.error)
+            .then(() => Sleep(300))
+            .then(() => (this.props.dispatch(fetchSession())));
     }
-
-    componentWillUnmount() {
-        // clearInterval(this.interval);
-    }
-
 
     SidebarContent = props => {
         const style = props.style
@@ -290,25 +295,13 @@ class ScheduleCalendar extends Component {
                             })}>
                                 <div>ערוך</div>
                             </MenuItem>
-                            <MenuItem data={{foo: 'bar'}} onClick={console.log}>
-                                נעל
-                            </MenuItem>
-                            <MenuItem onClick={() => {
-                                fetch(process.env.REACT_APP_API_URL + "/tests", {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({id: event.id})
-                                })
-                                    .catch(console.error)
-                                    .then(() => Sleep(300))
-                                    .then(() => (this.props.dispatch(fetchSession())));
-
-                            }}>
+                            {/*<MenuItem onClick={console.log}>*/}
+                            {/*    נעל*/}
+                            {/*</MenuItem>*/}
+                            <MenuItem onClick={() => this.fetch_delete('/tests', event.id)}>
                                 מחק
                             </MenuItem>
-                            <MenuItem divider />
+                            {/*<MenuItem divider />*/}
                         </ContextMenu>
                     ))}
                 {
@@ -319,22 +312,10 @@ class ScheduleCalendar extends Component {
                             })}>
                                 <div>ערוך</div>
                             </MenuItem>
-                            <MenuItem onClick={() => {
-                                fetch(process.env.REACT_APP_API_URL + "/blockers", {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({id: blocker.id})
-                                })
-                                    .catch(console.error)
-                                    .then(() => Sleep(300))
-                                    .then(() => (this.props.dispatch(fetchSession())));
-
-                            }}>
+                            <MenuItem onClick={() => this.fetch_delete('/blockers', blocker.id)}>
                                 מחק
                             </MenuItem>
-                            <MenuItem divider />
+                            {/*<MenuItem divider />*/}
                         </ContextMenu>
                     ))
                 }
