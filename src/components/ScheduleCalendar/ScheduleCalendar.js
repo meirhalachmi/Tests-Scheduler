@@ -18,7 +18,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {daysBetween, formatDate, isEmpty, Sleep} from "../../utils/utils";
+import {daysBetween, formatDate, groupBy, isEmpty, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -30,6 +30,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
 import {ContextMenu, MenuItem} from "react-contextmenu";
+import Accordion from "react-bootstrap/Accordion";
+import Card from "react-bootstrap/Card";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -87,57 +89,80 @@ class ScheduleCalendar extends Component {
             ? { ...styles.sidebar, ...props.style }
             : styles.sidebar;
 
-        let test_div = []
-        let test_div_ids = []
-        props.testsToSchedule.forEach( info => {
-            const test = info.test;
-            test_div_ids.push(test.id);
-            const numOfOptionalDates = info.optionalDates.length;
-            const color = numOfOptionalDates > 0 ? 'blue' : 'red';
-            test_div.push(
-                (<div className="test">
-                    <div className="name"><span style={{color: color}}>[{numOfOptionalDates}] </span>{test.name} - ({info.howManyLeft} מתוך {test.numOfTests})</div>
-                    <div className="classes">
-                        {test.participatingClasses.map(cls => {
-                            return props.classesDict[cls] ? props.classesDict[cls].name : '';
-                        }).join(', ')}
-                    </div>
-                </div>)
-            )
+        let subjectsDiv = []
 
 
-        });
-        let selectedTestIndInList = test_div_ids.indexOf(this.state.selectedTestId)
-        let list = (
-            <List
-                items={test_div}
-                selected={[selectedTestIndInList]}
-                disabled={[]}
-                multiple={false}
-                onChange={(selected) => {
-                    this.setState({
-                        selectedTestId: test_div_ids[selected],
-                    })
-                    fetch(process.env.REACT_APP_API_URL + '/finddate?' +
-                        'testid='+test_div_ids[selected].toString()
-                    )
-                        .then(response => response.json())
-                        .then(res => {
-                            // console.log(res)
-                            const days = res.map(date => {
-                                return parseDateString(date);
-                            });
-                            this.setState({
-                                optionalDays: days
-                            });
-                            if (res.length === 0){
-                                window.alert('לא נותרו תאריכים אפשריים למבחן זה')
-                            }
+        const testsGroupedBySubject = groupBy(props.testsToSchedule, info => info.test.subject);
+        const subjectIdsSortedList = Object.keys(testsGroupedBySubject).sort(
+            (a, b) => this.props.subjectsDict[a].name > this.props.subjectsDict[b].name ? 1 : -1
+        );
+        subjectIdsSortedList.forEach(subjectId => {
+            let test_div = [];
+            let test_div_ids = [];
+            const testsOfSubject = testsGroupedBySubject[subjectId];
 
+            testsOfSubject.forEach(info => {
+                const test = info.test;
+                test_div_ids.push(test.id);
+                const numOfOptionalDates = info.optionalDates.length;
+                const color = numOfOptionalDates > 0 ? 'blue' : 'red';
+                test_div.push(
+                    (<div className="test">
+                        <div className="name">
+                            <span style={{color: color}}>[{numOfOptionalDates}]</span>
+                            {test.name} - ({info.howManyLeft} מתוך {test.numOfTests})
+                        </div>
+                        <div className="classes">
+                            {test.participatingClasses.map(cls => {
+                                return props.classesDict[cls] ? props.classesDict[cls].name : '';
+                            }).join(', ')}
+                        </div>
+                    </div>)
+                )
+            });
+
+            let selectedTestIndInList = test_div_ids.indexOf(this.state.selectedTestId)
+            let list = (
+                <List
+                    items={test_div}
+                    selected={[selectedTestIndInList]}
+                    disabled={[]}
+                    multiple={false}
+                    onChange={(selected) => {
+                        this.setState({
+                            selectedTestId: test_div_ids[selected],
                         })
-                        .catch(console.error)
-                }}
-            />)
+                        fetch(process.env.REACT_APP_API_URL + '/finddate?' +
+                            'testid='+test_div_ids[selected].toString()
+                        )
+                            .then(response => response.json())
+                            .then(res => {
+                                const days = res.map(date => {
+                                    return parseDateString(date);
+                                });
+                                this.setState({
+                                    optionalDays: days
+                                });
+                                if (res.length === 0){
+                                    window.alert('לא נותרו תאריכים אפשריים למבחן זה')
+                                }
+
+                            })
+                            .catch(console.error)
+                    }}
+                />)
+
+            subjectsDiv.push(
+                <Card>
+                    <Accordion.Toggle as={Card.Header} eventKey={subjectId}>
+                        {this.props.subjectsDict[subjectId].name}
+                    </Accordion.Toggle>
+                    <Accordion.Collapse eventKey={subjectId}>
+                        <Card.Body style={{padding: 0}}>{list}</Card.Body>
+                    </Accordion.Collapse>
+                </Card>
+            )
+        })
 
         return (
             <MaterialTitlePanel title={
@@ -192,16 +217,9 @@ class ScheduleCalendar extends Component {
 
 
                 <div>
-                    <div>TODO: להווסיף פילטרים לפי כיתות ומקצועות</div>
-
-                    <div style={styles.divider} />
-                    {list}
-                    {/*<a href="index.html" style={styles.sidebarLink}>*/}
-                    {/*    Home*/}
-                    {/*</a>*/}
-                    {/*<a href="responsive_example.html" style={styles.sidebarLink}>*/}
-                    {/*</a>*/}
-                    {/*    Responsive Example*/}
+                    <Accordion>
+                        {subjectsDiv}
+                    </Accordion>
 
                 </div>
             </MaterialTitlePanel>
@@ -396,6 +414,7 @@ const mapStateToProps = (state) => {
     let classesDict = state.classes.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     let testsDict = state.tests.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     let blockersDict = state.blockers.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
+    let subjectsDict = state.subjects.items.reduce((o, cur) => ({...o, [cur.id]: cur}), {});
     return ({
         session: state.session.items,
         subjects: state.subjects.items,
@@ -405,6 +424,7 @@ const mapStateToProps = (state) => {
         classesDict,
         testsDict,
         blockersDict,
+        subjectsDict,
         scheduleDifficulty: state.schedule.difficulty,
         scheduledTests: state.schedule.scheduledTests,
         savedSchedules: state.savedSchedules.items,
