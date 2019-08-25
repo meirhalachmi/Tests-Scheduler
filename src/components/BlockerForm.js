@@ -50,7 +50,7 @@ class BlockerForm extends React.Component{
                         <Col md={12}>
                             <Form.Group>
                                 <Form.Label>שם האילוץ</Form.Label>
-                                <Form.Control required type="text" name="name"
+                                <Form.Control required type="text" name="name" maxLength={50}
                                               placeholder="שם האילוץ" defaultValue={this.getCurrentValue('name')}/>
 
 

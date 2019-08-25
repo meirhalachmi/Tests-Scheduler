@@ -57,6 +57,7 @@ class SetupSession extends React.Component {
                         <Form.Control type="text" required
                                       value={this.state.sessionName} name="sessionName"
                                       onChange={this.handleInputChange}
+                                      maxLength={100}
                         />
                     </Form.Group>
                 </Col>
@@ -135,7 +136,7 @@ class SetupSession extends React.Component {
                         {/*</Accordion.Toggle>*/}
                         {/*<Accordion.Collapse eventKey="0">*/}
                             <Card.Body>
-                                <List title="כיתות" sendText="הוסף כיתה"
+                                <List title="כיתות" sendText="הוסף כיתה" maxInputLength={5}
                                       setParentList={list => this.setState({classes: list})}/>
                             </Card.Body>
                         {/*</Accordion.Collapse>*/}
@@ -146,7 +147,7 @@ class SetupSession extends React.Component {
                         {/*</Accordion.Toggle>*/}
                         {/*<Accordion.Collapse eventKey="1">*/}
                             <Card.Body>
-                                <List title="מקצועות" sendText="הוסף מקצוע"
+                                <List title="מקצועות" sendText="הוסף מקצוע" maxInputLength={20}
                                       setParentList={list => this.setState({subjects: list})}/>
                             </Card.Body>
                         {/*</Accordion.Collapse>*/}
@@ -185,6 +186,7 @@ class List extends React.Component {
                 </ul>
                 <form>
                     <input
+                        maxLength={this.props.maxInputLength ? this.props.maxInputLength : 100}
                         id="new-todo"
                         onChange={this.handleChange}
                         value={this.state.text}

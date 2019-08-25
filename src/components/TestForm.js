@@ -75,7 +75,7 @@ subject: 29
                             <Form.Group controlId="label">
                                 <Form.Label>תיאור (לא חובה)</Form.Label>
                                 <Form.Control type="text" name="label" defaultValue={this.getCurrentValue('label')}
-                                              placeholder="לדוגמא- בגרות פנימית / מתכונת"/>
+                                              placeholder="לדוגמא- בגרות פנימית / מתכונת" maxLength={20}/>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
