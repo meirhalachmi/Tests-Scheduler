@@ -219,7 +219,7 @@ class Subjects extends Component {
             };
 
             axios.post(process.env.REACT_APP_API_URL + '/groupedSubjects', msg)
-                .then(response => response.json())
+                .then(() => this.props.history.push('/calendar'))
                 .catch(console.error);
         }
     }
