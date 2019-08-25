@@ -32,6 +32,8 @@ import ButtonToolbar from "react-bootstrap/ButtonToolbar";
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
+import Tabs from "react-bootstrap/Tabs";
+import Tab from "react-bootstrap/Tab";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -48,7 +50,7 @@ class ScheduleCalendar extends Component {
             selectedTestId: null,
             scheduledTests: [],
             testEvents: [],
-            filter: () => true,
+            filteredClassOnSchedule: null,
             modalFormData: {
                 type: null,
                 props: null
@@ -270,6 +272,11 @@ class ScheduleCalendar extends Component {
             startDate.add(1, 'month');
         }
         // console.log(result)
+        const calendarsBody = result.map(date => (
+            <div style={styles.content}>
+                {this.getBigCalendar(new Date(date))}
+            </div>
+        ));
         return (
             <>
                 <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
@@ -299,22 +306,28 @@ class ScheduleCalendar extends Component {
                                 <Button onClick={() => {
                                     this.props.history.push("/selectsession")
                                 }}>בחר לוח שנה אחר</Button>
+
                             </ButtonToolbar>
                         </div>
                     }>
-                        {result.map(date => (
-                            <div style={styles.content}>
-                                {this.getBigCalendar(new Date(date))}
-                            </div>
-                        ))}
+                        <Tabs defaultActiveKey="null" id="classesFilterTabs" onSelect={key => {
+                            if (key === "all"){
+                                this.setState({filteredClassOnSchedule: null})
+                            } else {
+                                this.setState({filteredClassOnSchedule: parseInt(key)})
+                            }
+                        }}>
+                            <Tab eventKey="null" title="כל הכיתות">{calendarsBody}</Tab>
+                            {this.props.classes.map(cls => {
+                                return (
+                                    <Tab eventKey={cls.id} title={cls.name}>{calendarsBody}</Tab>
+                                );
+                            })}
+                        </Tabs>
+                        {/*{calendarsBody}*/}
                     </MaterialTitlePanel>
 
                 </Sidebar>
-                <ContextMenu id={"test"}>
-                    <MenuItem>
-                        <div>משהו</div>
-                    </MenuItem>
-                </ContextMenu>
                 {
                     this.props.tests.filter(test => test.id).map(test => (
                         <ContextMenu id={"test" + test.id.toString()} rtl>
@@ -358,7 +371,15 @@ class ScheduleCalendar extends Component {
             defaultDate={defaultDate}
             defaultView="month"
             views={{month: true}}
-            events={[...this.props.blockerEvents, ...this.props.testEvents]}
+            events={[
+                ...this.props.blockerEvents.filter(
+                    e => this.state.filteredClassOnSchedule === null ||
+                        e.blocker.participatingClasses.includes(this.state.filteredClassOnSchedule)
+                ),
+                ...this.props.testEvents.filter(
+                    e => this.state.filteredClassOnSchedule === null ||
+                        e.test.participatingClasses.includes(this.state.filteredClassOnSchedule)
+                )]}
             style={{height: "650px"}}
             startAccessor="start"
             endAccessor="end"
@@ -457,37 +478,43 @@ const mapStateToProps = (state) => {
             }
         ).filter(i => i != null),
         blockerEvents:
-            state.blockers.items.reduce((ar, blocker) => {
-                ar = [...ar,
-                    ...blocker.startDates.map((_, i) => ({
-                        title: blocker.name,
-                        start: new Date(blocker.startDates[i]),
-                        end: new Date(blocker.endDates[i]),
-                        type: 'blocker',
-                        id: blocker.id
-                    }))
-                ];
-                return ar;
-            }, []),
+            state.blockers.items
+            // .filter(blocker => )
+                .reduce((ar, blocker) => {
+                    ar = [...ar,
+                        ...blocker.startDates.map((_, i) => ({
+                            title: blocker.name,
+                            start: new Date(blocker.startDates[i]),
+                            end: new Date(blocker.endDates[i]),
+                            type: 'blocker',
+                            id: blocker.id,
+                            blocker: blocker
+                        }))
+                    ];
+                    return ar;
+                }, []),
         testEvents:
-            state.schedule.scheduledTests.map(scheduledTestInfo => {
-                const id = scheduledTestInfo.id;
-                const date = scheduledTestInfo.date;
-                if (isEmpty(testsDict)){
-                    return []
-                }
-                const testToSchedule = testsDict[id];
-                const testName = testToSchedule ? testToSchedule.name : '';
-                return {
-                    title: testName + ' (' + testToSchedule.participatingClasses.map(cls => {
-                        return classesDict[cls] ? classesDict[cls].name : '';
-                    }).join(', ') + ')',
-                    start: new Date(date),
-                    end: new Date(date),
-                    type: 'test',
-                    id: id,
-                }
-            })
+            state.schedule.scheduledTests
+                .filter(info => testsDict[info.id])
+                .map(scheduledTestInfo => {
+                    const id = scheduledTestInfo.id;
+                    const date = scheduledTestInfo.date;
+                    if (isEmpty(testsDict)){
+                        return []
+                    }
+                    const scheduledTest = testsDict[id];
+                    const testName = scheduledTest ? scheduledTest.name : '';
+                    return {
+                        title: testName + ' (' + scheduledTest.participatingClasses.map(cls => {
+                            return classesDict[cls] ? classesDict[cls].name : '';
+                        }).join(', ') + ')',
+                        start: new Date(date),
+                        end: new Date(date),
+                        type: 'test',
+                        id: id,
+                        test: scheduledTest
+                    }
+                })
     });
 }
 
