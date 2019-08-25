@@ -310,14 +310,14 @@ class ScheduleCalendar extends Component {
                             </ButtonToolbar>
                         </div>
                     }>
-                        <Tabs defaultActiveKey="null" id="classesFilterTabs" onSelect={key => {
+                        <Tabs defaultActiveKey="all" id="classesFilterTabs" onSelect={key => {
                             if (key === "all"){
                                 this.setState({filteredClassOnSchedule: null})
                             } else {
                                 this.setState({filteredClassOnSchedule: parseInt(key)})
                             }
                         }}>
-                            <Tab eventKey="null" title="כל הכיתות">{calendarsBody}</Tab>
+                            <Tab eventKey="all" title="כל הכיתות">{calendarsBody}</Tab>
                             {this.props.classes.map(cls => {
                                 return (
                                     <Tab eventKey={cls.id} title={cls.name}>{calendarsBody}</Tab>
