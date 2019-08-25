@@ -317,14 +317,14 @@ class ScheduleCalendar extends Component {
                                 this.setState({filteredClassOnSchedule: parseInt(key)})
                             }
                         }}>
-                            <Tab eventKey="all" title="כל הכיתות">{calendarsBody}</Tab>
+                            <Tab eventKey="all" title="כל הכיתות"/>
                             {this.props.classes.map(cls => {
                                 return (
-                                    <Tab eventKey={cls.id} title={cls.name}>{calendarsBody}</Tab>
+                                    <Tab eventKey={cls.id} title={cls.name}/>
                                 );
                             })}
                         </Tabs>
-                        {/*{calendarsBody}*/}
+                        {calendarsBody}
                     </MaterialTitlePanel>
 
                 </Sidebar>
