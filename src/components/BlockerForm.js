@@ -4,7 +4,6 @@ import {formatDate, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
-import {string} from "prop-types";
 
 class BlockerForm extends React.Component{
     constructor(props) {
@@ -22,14 +21,18 @@ class BlockerForm extends React.Component{
                 return blocker['name'];
             } else if (fieldName === 'participatingClasses') {
                 return blocker['participatingClasses'];
-            } else if (fieldName === 'participatingSubjects') {
-                return blocker['participatingSubjects'];
             } else if (fieldName.startsWith('startDate')){
                 const ind = parseInt(fieldName.replace('startDate', ''));
                 return formatDate(blocker['startDates'][ind]);
             } else if (fieldName.startsWith('endDate')){
                 const ind = parseInt(fieldName.replace('endDate', ''));
                 return formatDate(blocker['endDates'][ind]);
+            } else if (fieldName.startsWith('startHour')){
+                const ind = parseInt(fieldName.replace('startHour', ''));
+                return blocker['startHour'][ind];
+            } else if (fieldName.startsWith('endHour')){
+                const ind = parseInt(fieldName.replace('endHour', ''));
+                return blocker['endHour'][ind];
             }
         } else if (this.props.wantedDates){
             if (fieldName.startsWith('startDate')) {
@@ -87,7 +90,7 @@ class BlockerForm extends React.Component{
                     {range(0, this.state.numOfInstances-1).map(i => {
                         return (
                             <Form.Row id={i}>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>תאריך התחלה</Form.Label>}
                                         <Form.Control required type="date" name={"startDate" + i.toString()}
@@ -96,12 +99,38 @@ class BlockerForm extends React.Component{
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group>
                                         {i === 0 && <Form.Label>תאריך סיום</Form.Label>}
                                         <Form.Control required type="date" name={"endDate" + i.toString()}
                                                       min={this.props.minDate} max={this.props.maxDate}
                                                       defaultValue={this.getCurrentValue("endDate" + i.toString())}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Group>
+                                        {i === 0 && <Form.Label>שעת התחלה</Form.Label>}
+                                        <Form.Control required key={i} type="number" name={"startHour" + i.toString()}
+                                                      min={this.props.session.startHour} max={this.props.session.endHour}
+                                                      defaultValue={
+                                                          this.props.blockerToEdit ?
+                                                              this.getCurrentValue("startHour" + i.toString()) :
+                                                              this.props.session.startHour
+                                                      }
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Group>
+                                        {i === 0 && <Form.Label>שעת סיום</Form.Label>}
+                                        <Form.Control required key={i} type="number" name={"endHour" + i.toString()}
+                                                      min={this.props.startHour} max={this.props.endHour}
+                                                      defaultValue={
+                                                          this.props.blockerToEdit ?
+                                                              this.getCurrentValue("endHour" + i.toString()) :
+                                                              this.props.session.endHour
+                                                      }
                                         />
                                     </Form.Group>
                                 </Col>
@@ -148,6 +177,11 @@ class BlockerForm extends React.Component{
                 .map( i => e.target['startDate' + i].value)],
             endDates: [range(0, this.state.numOfInstances-1)
                 .map( i => e.target['endDate' + i].value)],
+            startHours: [range(0, this.state.numOfInstances-1)
+                .map( i => e.target['startHour' + i].value)],
+            endHours: [range(0, this.state.numOfInstances-1)
+                .map( i => e.target['endHour' + i].value)],
+
         };
         if (this.props.blockerToEdit){
             msg['id'] = this.props.blockerToEdit.id;
