@@ -29,10 +29,10 @@ class BlockerForm extends React.Component{
                 return formatDate(blocker['endDates'][ind]);
             } else if (fieldName.startsWith('startHour')){
                 const ind = parseInt(fieldName.replace('startHour', ''));
-                return blocker['startHour'][ind];
+                return blocker['startHours'][ind];
             } else if (fieldName.startsWith('endHour')){
                 const ind = parseInt(fieldName.replace('endHour', ''));
-                return blocker['endHour'][ind];
+                return blocker['endHours'][ind];
             }
         } else if (this.props.wantedDates){
             if (fieldName.startsWith('startDate')) {
