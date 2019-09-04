@@ -74,21 +74,28 @@ export function daysBetween(date1, date2) {
  * @return {Object}                   The grouped object
  */
 export function groupBy(arr, criteria) {
-	return arr.reduce(function (obj, item) {
+    return arr.reduce(function (obj, item) {
 
-		// Check if the criteria is a function to run on the item or a property of it
+        // Check if the criteria is a function to run on the item or a property of it
         const key = typeof criteria === 'function' ? criteria(item) : item[criteria];
 
         // If the key doesn't exist yet, create it
-		if (!obj.hasOwnProperty(key)) {
-			obj[key] = [];
-		}
+        if (!obj.hasOwnProperty(key)) {
+            obj[key] = [];
+        }
 
-		// Push the value to the object
-		obj[key].push(item);
+        // Push the value to the object
+        obj[key].push(item);
 
-		// Return the object to the next item in the loop
-		return obj;
+        // Return the object to the next item in the loop
+        return obj;
 
-	}, {});
+    }, {});
+}
+
+export function longestCommonStartingSubstring(arr1){
+    let arr = arr1.concat().sort(),
+        a1 = arr[0], a2 = arr[arr.length - 1], L = a1.length, i = 0;
+    while(i< L && a1.charAt(i)=== a2.charAt(i)) i++;
+    return a1.substring(0, i);
 }

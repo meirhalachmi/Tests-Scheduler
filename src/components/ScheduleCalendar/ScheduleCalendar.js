@@ -18,7 +18,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {daysBetween, formatDate, groupBy, isEmpty, Sleep} from "../../utils/utils";
+import {daysBetween, formatDate, groupBy, isEmpty, longestCommonStartingSubstring, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -504,9 +504,13 @@ const mapStateToProps = (state) => {
                     }
                     const scheduledTest = testsDict[id];
                     const testName = scheduledTest ? scheduledTest.name : '';
+                    const commonStartingSubstringInClassNames = longestCommonStartingSubstring(
+                        state.classes.items.map(cls => cls.name)
+                    )
                     return {
                         title: testName + ' (' + scheduledTest.participatingClasses.map(cls => {
-                            return classesDict[cls] ? classesDict[cls].name : '';
+                            return classesDict[cls] ?
+                                classesDict[cls].name.replace(commonStartingSubstringInClassNames,'') : '';
                         }).join(', ') + ')',
                         start: new Date(date),
                         end: new Date(date),
