@@ -46,22 +46,22 @@ function schedulerState (
 {
     // console.log(action);
     switch (action.type) {
-        case SCHEDULE:
-            return Object.assign({}, state, {
-                scheduledTests: [
-                    ...state.scheduledTests,
-                    {id: action.id, date: action.date}
-                ],
-            })
-        case UNSCHEDULE:
-            return Object.assign({}, state, {
-                scheduledTests: [
-                    ...state.scheduledTests.filter(st => {
-                        return (st.id !== action.id ||
-                            st.date.toString() !== action.date.toString());
-                    })
-                ],
-            })
+        // case SCHEDULE:
+        //     return Object.assign({}, state, {
+        //         scheduledTests: [
+        //             ...state.scheduledTests,
+        //             {id: action.id, date: action.date}
+        //         ],
+        //     })
+        // case UNSCHEDULE:
+        //     return Object.assign({}, state, {
+        //         scheduledTests: [
+        //             ...state.scheduledTests.filter(st => {
+        //                 return (st.id !== action.id ||
+        //                     st.date.toString() !== action.date.toString());
+        //             })
+        //         ],
+        //     })
         case REQUEST + '_SCHEDULE':
             return Object.assign({}, state, {
                 isFetching: true,

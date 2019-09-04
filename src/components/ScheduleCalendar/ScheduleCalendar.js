@@ -82,7 +82,7 @@ class ScheduleCalendar extends Component {
             body: JSON.stringify({id: id})
         })
             .catch(console.error)
-            .then(() => Sleep(300))
+            // .then(() => Sleep(300))
             .then(() => (this.props.dispatch(fetchSession())));
     }
 
@@ -180,7 +180,7 @@ class ScheduleCalendar extends Component {
                                     process.env.REACT_APP_API_URL + '/schedulerstatestore',
                                     {name}
                                 )
-                                    .then(() => Sleep(500))
+                                    // .then(() => Sleep(500))
                                     .then(this.props.dispatch(fetchSavedSchedules()))
                                     .catch(console.error)
                             }
@@ -380,7 +380,7 @@ class ScheduleCalendar extends Component {
                     e => this.state.filteredClassOnSchedule === null ||
                         e.test.participatingClasses.includes(this.state.filteredClassOnSchedule)
                 )]}
-            style={{height: "650px"}}
+            style={{height: "800px"}}
             startAccessor="start"
             endAccessor="end"
             onSelectEvent={(event, e) => {

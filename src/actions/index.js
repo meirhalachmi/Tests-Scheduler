@@ -88,7 +88,6 @@ export const scheduleTest = (testId, date) => {
                 )
             )
             .then(() => {
-                Sleep(1000);
                 return dispatch(fetchScheduledTests())
             })
     }
@@ -113,7 +112,6 @@ export const unscheduleTest = (testId, date) => {
                 )
             )
             .then(() => {
-                Sleep(1000);
                 return dispatch(fetchScheduledTests())
             })
     }
@@ -134,7 +132,7 @@ export const resetSchedule = () => {
                 )
             )
             .then(() => {
-                Sleep(1000);
+                // Sleep(1000);
                 return dispatch(fetchScheduledTests())
             })
     }
