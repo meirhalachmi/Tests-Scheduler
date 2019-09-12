@@ -366,6 +366,7 @@ class ScheduleCalendar extends Component {
 
     getBigCalendar(defaultDate) {
         return <BigCalendar
+            popup
             selectable
             localizer={localizer}
             defaultDate={defaultDate}
@@ -380,7 +381,7 @@ class ScheduleCalendar extends Component {
                     e => this.state.filteredClassOnSchedule === null ||
                         e.test.participatingClasses.includes(this.state.filteredClassOnSchedule)
                 )]}
-            style={{height: "800px"}}
+            style={{height: "500px"}}
             startAccessor="start"
             endAccessor="end"
             onSelectEvent={(event, e) => {
