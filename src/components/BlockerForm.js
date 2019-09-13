@@ -1,6 +1,6 @@
 import React from "react";
 import {Button, Col, Form} from 'react-bootstrap';
-import {formatDate, range} from "../utils/utils";
+import {formatDateForForms, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
@@ -23,10 +23,10 @@ class BlockerForm extends React.Component{
                 return blocker['participatingClasses'];
             } else if (fieldName.startsWith('startDate')){
                 const ind = parseInt(fieldName.replace('startDate', ''));
-                return formatDate(blocker['startDates'][ind]);
+                return formatDateForForms(blocker['startDates'][ind]);
             } else if (fieldName.startsWith('endDate')){
                 const ind = parseInt(fieldName.replace('endDate', ''));
-                return formatDate(blocker['endDates'][ind]);
+                return formatDateForForms(blocker['endDates'][ind]);
             } else if (fieldName.startsWith('startHour')){
                 const ind = parseInt(fieldName.replace('startHour', ''));
                 return blocker['startHours'][ind];
@@ -206,8 +206,8 @@ const mapStateToProps = (state) => ({
     subjects : state.subjects.items,
     classes : state.classes.items,
 
-    minDate: formatDate(state.session.items.startDate),
-    maxDate: formatDate(state.session.items.endDate),
+    minDate: formatDateForForms(state.session.items.startDate),
+    maxDate: formatDateForForms(state.session.items.endDate),
 
 })
 export default connect(mapStateToProps)(BlockerForm);

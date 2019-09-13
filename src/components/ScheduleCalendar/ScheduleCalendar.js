@@ -6,7 +6,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./react-contextmenu.css"
 import Sidebar from "react-sidebar";
 import axios from "axios";
-
+import PrintSchedule from "./PrintSchedule";
 import {connect} from "react-redux";
 import List from "react-list-select";
 import MaterialTitlePanel from "./material_title_panel";
@@ -18,7 +18,7 @@ import {
     scheduleTest,
     unscheduleTest
 } from "../../actions";
-import {daysBetween, formatDate, groupBy, isEmpty, longestCommonStartingSubstring, Sleep} from "../../utils/utils";
+import {daysBetween, formatDateForForms, groupBy, isEmpty, longestCommonStartingSubstring, Sleep} from "../../utils/utils";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEraser, faLock, faPlus, faRobot, faSave} from "@fortawesome/free-solid-svg-icons";
 import {Event, parseDateString, styles} from "./helpers";
@@ -34,6 +34,7 @@ import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
+import {NoPrint, PrintProvider, Print} from "react-easy-print";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -180,7 +181,7 @@ class ScheduleCalendar extends Component {
                                     process.env.REACT_APP_API_URL + '/schedulerstatestore',
                                     {name}
                                 )
-                                    // .then(() => Sleep(500))
+                                // .then(() => Sleep(500))
                                     .then(this.props.dispatch(fetchSavedSchedules()))
                                     .catch(console.error)
                             }
@@ -261,110 +262,114 @@ class ScheduleCalendar extends Component {
         const startDate = moment(this.props.session.startDate);
         const endDate = moment(this.props.session.endDate);
 
-        const result = [];
+        const dates = [];
 
         if (endDate.isBefore(startDate)) {
             throw "End date must be greater than start date."
         }
 
         while (startDate.isBefore(endDate)) {
-            result.push(startDate.format("YYYY-MM-01"));
+            dates.push(startDate.format("YYYY-MM-01"));
             startDate.add(1, 'month');
         }
-        // console.log(result)
-        const calendarsBody = result.map(date => (
+        // console.log(dates)
+        const calendarsBody = dates.map(date => (
             <div style={styles.content}>
                 {this.getBigCalendar(new Date(date))}
             </div>
+
         ));
         return (
-            <>
-                <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
-                    <MaterialTitlePanel title={
-                        <div>
-                            <span>רמת קושי: {this.props.scheduleDifficulty}</span>
-                            <ButtonToolbar>
-                                <DropdownButton id="dropdown-basic-button"
-                                                variant="secondary" title="עבור ללוח שמור">
-                                    {this.props.savedSchedules.map(savedSchedule => {
-                                        const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
-                                        return (
-                                            <Dropdown.Item onSelect={() => (
-                                                this.props.dispatch(
-                                                    fetchScheduledTests('?storeid=' + savedSchedule.storeid)
-                                                )
-                                            )}>{savedSchedule.name + " - " }
-                                                <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
-                                            </Dropdown.Item>
-                                        );
-                                    })}
-                                </DropdownButton>
-                                <Button onClick={() => {
-                                    fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
-                                        this.props.dispatch(fetchScheduledTests()))
-                                }}>שפר שיבוצים</Button>
-                                <Button onClick={() => {
-                                    this.props.history.push("/selectsession")
-                                }}>בחר לוח שנה אחר</Button>
+            <PrintProvider>
+                <PrintSchedule {...this.props}/>
+                <NoPrint>
+                    <Sidebar {...sidebarProps} styles={{root: {margin: '0 15px'}}} >
+                        <MaterialTitlePanel title={
+                            <div>
+                                <span>רמת קושי: {this.props.scheduleDifficulty}</span>
+                                <ButtonToolbar>
+                                    <DropdownButton id="dropdown-basic-button"
+                                                    variant="secondary" title="עבור ללוח שמור">
+                                        {this.props.savedSchedules.map(savedSchedule => {
+                                            const daysPassed = daysBetween(new Date(), new Date(savedSchedule.dateSaved));
+                                            return (
+                                                <Dropdown.Item onSelect={() => (
+                                                    this.props.dispatch(
+                                                        fetchScheduledTests('?storeid=' + savedSchedule.storeid)
+                                                    )
+                                                )}>{savedSchedule.name + " - " }
+                                                    <em>{"נשמר לפני " + `${daysPassed}` + ' ימים'}</em>
+                                                </Dropdown.Item>
+                                            );
+                                        })}
+                                    </DropdownButton>
+                                    <Button onClick={() => {
+                                        fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
+                                            this.props.dispatch(fetchScheduledTests()))
+                                    }}>שפר שיבוצים</Button>
+                                    <Button onClick={() => {
+                                        this.props.history.push("/selectsession")
+                                    }}>בחר לוח שנה אחר</Button>
 
-                            </ButtonToolbar>
-                        </div>
-                    }>
-                        <Tabs defaultActiveKey="all" id="classesFilterTabs" onSelect={key => {
-                            if (key === "all"){
-                                this.setState({filteredClassOnSchedule: null})
-                            } else {
-                                this.setState({filteredClassOnSchedule: parseInt(key)})
-                            }
-                        }}>
-                            <Tab eventKey="all" title="כל הכיתות"/>
-                            {this.props.classes.map(cls => {
-                                return (
-                                    <Tab eventKey={cls.id} title={cls.name}/>
-                                );
-                            })}
-                        </Tabs>
-                        {calendarsBody}
-                    </MaterialTitlePanel>
+                                </ButtonToolbar>
+                            </div>
+                        }>
+                            <Tabs defaultActiveKey="all" id="classesFilterTabs" onSelect={key => {
+                                if (key === "all"){
+                                    this.setState({filteredClassOnSchedule: null})
+                                } else {
+                                    this.setState({filteredClassOnSchedule: parseInt(key)})
+                                }
+                            }}>
+                                <Tab eventKey="all" title="כל הכיתות"/>
+                                {this.props.classes.map(cls => {
+                                    return (
+                                        <Tab eventKey={cls.id} title={cls.name}/>
+                                    );
+                                })}
+                            </Tabs>
+                            {calendarsBody}
+                        </MaterialTitlePanel>
 
-                </Sidebar>
-                {
-                    this.props.tests.filter(test => test.id).map(test => (
-                        <ContextMenu id={"test" + test.id.toString()} rtl>
-                            <MenuItem onClick={() => this.showTestForm({
-                                testToEdit: this.props.testsDict[test.id]
-                            })}>
-                                <div>ערוך</div>
-                            </MenuItem>
-                            {/*<MenuItem onClick={console.log}>*/}
-                            {/*    נעל*/}
-                            {/*</MenuItem>*/}
-                            <MenuItem onClick={() => this.fetch_delete('/tests', test.id)}>
-                                מחק
-                            </MenuItem>
-                            {/*<MenuItem divider />*/}
-                        </ContextMenu>
-                    ))}
-                {
-                    this.props.blockers.map(blocker => (
-                        <ContextMenu id={"blocker" + blocker.id.toString()} rtl>
-                            <MenuItem onClick={() => this.showBlockerForm({
-                                blockerToEdit: this.props.blockersDict[blocker.id]
-                            })}>
-                                <div>ערוך</div>
-                            </MenuItem>
-                            <MenuItem onClick={() => this.fetch_delete('/blockers', blocker.id)}>
-                                מחק
-                            </MenuItem>
-                            {/*<MenuItem divider />*/}
-                        </ContextMenu>
-                    ))
-                }
-            </>
+                    </Sidebar>
+                    {
+                        this.props.tests.filter(test => test.id).map(test => (
+                            <ContextMenu id={"test" + test.id.toString()} rtl>
+                                <MenuItem onClick={() => this.showTestForm({
+                                    testToEdit: this.props.testsDict[test.id]
+                                })}>
+                                    <div>ערוך</div>
+                                </MenuItem>
+                                {/*<MenuItem onClick={console.log}>*/}
+                                {/*    נעל*/}
+                                {/*</MenuItem>*/}
+                                <MenuItem onClick={() => this.fetch_delete('/tests', test.id)}>
+                                    מחק
+                                </MenuItem>
+                                {/*<MenuItem divider />*/}
+                            </ContextMenu>
+                        ))}
+                    {
+                        this.props.blockers.map(blocker => (
+                            <ContextMenu id={"blocker" + blocker.id.toString()} rtl>
+                                <MenuItem onClick={() => this.showBlockerForm({
+                                    blockerToEdit: this.props.blockersDict[blocker.id]
+                                })}>
+                                    <div>ערוך</div>
+                                </MenuItem>
+                                <MenuItem onClick={() => this.fetch_delete('/blockers', blocker.id)}>
+                                    מחק
+                                </MenuItem>
+                                {/*<MenuItem divider />*/}
+                            </ContextMenu>
+                        ))
+                    }
+                </NoPrint>
+            </PrintProvider>
         );
     }
 
-    getBigCalendar(defaultDate) {
+    getBigCalendar(defaultDate, style={}) {
         return <BigCalendar
             popup
             selectable
@@ -381,7 +386,7 @@ class ScheduleCalendar extends Component {
                     e => this.state.filteredClassOnSchedule === null ||
                         e.test.participatingClasses.includes(this.state.filteredClassOnSchedule)
                 )]}
-            style={{height: "500px"}}
+            style={{height: "500px", ...style}}
             startAccessor="start"
             endAccessor="end"
             onSelectEvent={(event, e) => {
@@ -411,8 +416,8 @@ class ScheduleCalendar extends Component {
                 else {
                     this.showBlockerForm({
                         wantedDates: {
-                            start: formatDate(slotInfo.start),
-                            end: formatDate(slotInfo.end)
+                            start: formatDateForForms(slotInfo.start),
+                            end: formatDateForForms(slotInfo.end)
                         }
                     })
                 }

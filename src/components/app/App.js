@@ -27,23 +27,23 @@ class AsyncApp extends Component{
 
     render() {
         return(
-            <Container>
+            <>
                 <HashRouter basename={'/'}>
                     <div style={{alignItems: ""}}>
-                        <li><Link to="/">Home</Link></li>
-                        <li><Link to="/selectsession">selectsession</Link></li>
-                        {/*<nav>*/}
-                        {/*    <Navbar bg="light" variant="light">*/}
-                        {/*        <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>*/}
-                        {/*        <Nav className="mr-auto">*/}
-                        {/*            <NavRouterLink to="/session">סשן</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>*/}
-                        {/*            <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>*/}
-                        {/*        </Nav>*/}
-                        {/*    </Navbar>*/}
-                        {/*</nav>*/}
-                        <hr />
+                        {/*<li><Link to="/">Home</Link></li>*/}
+                        {/*<li><Link to="/selectsession">selectsession</Link></li>*/}
+                        {/*/!*<nav>*!/*/}
+                        {/*/!*    <Navbar bg="light" variant="light">*!/*/}
+                        {/*/!*        <Navbar.Brand href="/selectsession">החלף לוח מבחנים</Navbar.Brand>*!/*/}
+                        {/*/!*        <Nav className="mr-auto">*!/*/}
+                        {/*/!*            <NavRouterLink to="/session">סשן</NavRouterLink>*!/*/}
+                        {/*/!*            <NavRouterLink to="/addtests">הגדרת מבחנים</NavRouterLink>*!/*/}
+                        {/*/!*            <NavRouterLink to="/addblockers">הגדרת אילוצים</NavRouterLink>*!/*/}
+                        {/*/!*            <NavRouterLink to="/calendar">שיבוצים</NavRouterLink>*!/*/}
+                        {/*/!*        </Nav>*!/*/}
+                        {/*/!*    </Navbar>*!/*/}
+                        {/*/!*</nav>*!/*/}
+                        {/*<hr />*/}
                         <Switch>
                             <Route exact path="/" component={SelectSession}/>
                             <Route path="/home" component={Home}/>
@@ -59,7 +59,7 @@ class AsyncApp extends Component{
                     </div>
                 </HashRouter>
 
-            </Container>
+            </>
         )
     }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import {Button, Col, Form} from 'react-bootstrap';
-import {formatDate, range} from "../utils/utils";
+import {formatDateForForms, range} from "../utils/utils";
 import axios from "axios";
 import {connect} from "react-redux";
 import Container from "react-bootstrap/Container";
@@ -265,7 +265,7 @@ const mapStateToProps = (state) => ({
     session : state.session.items,
     subjects : state.subjects.items,
     classes : state.classes.items,
-    minDate: formatDate(state.session.items.startDate),
-    maxDate: formatDate(state.session.items.endDate),
+    minDate: formatDateForForms(state.session.items.startDate),
+    maxDate: formatDateForForms(state.session.items.endDate),
 })
 export default connect(mapStateToProps)(TestForm);

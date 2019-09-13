@@ -66,11 +66,6 @@ export function fetchSession() {
 
 
 export const scheduleTest = (testId, date) => {
-    // return {
-    //   type: SCHEDULE,
-    //   testId,
-    //   date
-    // }scheduledTests
     return dispatch => {
         const msg = {
             testid: testId.toString(),
@@ -108,7 +103,6 @@ export const unscheduleTest = (testId, date) => {
                         id: testId,
                         date: date
                     }
-
                 )
             )
             .then(() => {
