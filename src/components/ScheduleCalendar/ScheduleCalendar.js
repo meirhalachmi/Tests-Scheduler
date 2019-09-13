@@ -385,7 +385,7 @@ class ScheduleCalendar extends Component {
           e => this.state.filteredClassOnSchedule === null ||
             e.test.participatingClasses.includes(this.state.filteredClassOnSchedule)
         )]}
-      style={{height: "500px", ...style}}
+      style={{height: "600px", ...style}}
       startAccessor="start"
       endAccessor="end"
       onSelectEvent={(event, e) => {
