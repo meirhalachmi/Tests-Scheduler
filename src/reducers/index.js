@@ -9,11 +9,11 @@ import {
 
 function ReducerCreator(name){
     return function (
-        state = {
-            isFetching: false,
-            items: []
-        },
-        action
+      state = {
+          isFetching: false,
+          items: []
+      },
+      action
     ) {
         switch (action.type) {
             case REQUEST + '_' + name.toUpperCase():
@@ -34,34 +34,34 @@ function ReducerCreator(name){
 }
 
 function schedulerState (
-    state = {
-        isFetching: false,
-        scheduledTests: [],
-        unscheduledTestsOptions: {},
-        difficulty: 0,
-        horizon: true
-    },
-    action
+  state = {
+      isFetching: false,
+      scheduledTests: [],
+      unscheduledTestsOptions: {},
+      difficulty: 0,
+      horizon: true
+  },
+  action
 )
 {
     // console.log(action);
     switch (action.type) {
-        // case SCHEDULE:
-        //     return Object.assign({}, state, {
-        //         scheduledTests: [
-        //             ...state.scheduledTests,
-        //             {id: action.id, date: action.date}
-        //         ],
-        //     })
-        // case UNSCHEDULE:
-        //     return Object.assign({}, state, {
-        //         scheduledTests: [
-        //             ...state.scheduledTests.filter(st => {
-        //                 return (st.id !== action.id ||
-        //                     st.date.toString() !== action.date.toString());
-        //             })
-        //         ],
-        //     })
+      // case SCHEDULE:
+      //     return Object.assign({}, state, {
+      //         scheduledTests: [
+      //             ...state.scheduledTests,
+      //             {id: action.id, date: action.date}
+      //         ],
+      //     })
+      // case UNSCHEDULE:
+      //     return Object.assign({}, state, {
+      //         scheduledTests: [
+      //             ...state.scheduledTests.filter(st => {
+      //                 return (st.id !== action.id ||
+      //                     st.date.toString() !== action.date.toString());
+      //             })
+      //         ],
+      //     })
         case REQUEST + '_SCHEDULE':
             return Object.assign({}, state, {
                 isFetching: true,
