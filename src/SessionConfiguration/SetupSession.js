@@ -8,6 +8,8 @@ import Col from "react-bootstrap/Col";
 // import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
 import {fetchSession} from "../actions";
+import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 class SetupSession extends React.Component {
   constructor(props){
@@ -165,7 +167,15 @@ class List extends React.Component {
         {/*<h2>{this.props.title}</h2>*/}
         <ul>
           {this.state.list.map((item, idx) => {
-            return <li key={`item-${idx}`}>{item}</li>
+            return (
+              <li key={`item-${idx}`}>
+                <FontAwesomeIcon icon={faTrashAlt}
+                                 onClick={() => this.deleteElement(idx)}
+                                 style={{marginLeft: "10px"}}
+                />
+                {item}
+              </li>
+            )
           })}
         </ul>
         <form>
@@ -185,6 +195,12 @@ class List extends React.Component {
 
   handleChange(e) {
     this.setState({ text: e.target.value });
+  }
+
+  deleteElement(idx) {
+    let list = [...this.state.list];
+    list.splice(idx, 1);
+    this.setState({list})
   }
 
   handleSubmit(e) {
