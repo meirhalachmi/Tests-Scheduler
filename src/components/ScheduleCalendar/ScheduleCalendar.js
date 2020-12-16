@@ -306,6 +306,11 @@ class ScheduleCalendar extends Component {
                     fetch(process.env.REACT_APP_API_URL + '/debug').then(r =>
                       this.props.dispatch(fetchScheduledTests()))
                   }}>שפר שיבוצים</Button>
+
+                  <Button onClick={() => {
+                    this.props.history.push("/subjects")
+                  }}>עדכן אשכולות</Button>
+
                   <Button onClick={() => {
                     this.props.history.push("/selectsession")
                   }}>בחר לוח שנה אחר</Button>

@@ -21,6 +21,8 @@ class BlockerForm extends React.Component{
         return blocker['name'];
       } else if (fieldName === 'participatingClasses') {
         return blocker['participatingClasses'];
+      } else if (fieldName === 'participatingSubjects') {
+        return blocker['participatingSubjects'];
       } else if (fieldName.startsWith('startDate')){
         const ind = parseInt(fieldName.replace('startDate', ''));
         return formatDateForForms(blocker['startDates'][ind]);
