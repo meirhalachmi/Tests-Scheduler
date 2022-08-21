@@ -11,14 +11,25 @@ import {fetchSession} from "../actions";
 import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
+function dateToStr(dt) {
+  var dd = String(dt.getDate()).padStart(2, '0');
+  var mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = dt.getFullYear();
+
+  return yyyy + '-' + mm + '-' + dd;
+}
+
 class SetupSession extends React.Component {
   constructor(props){
     super(props);
+    var startDate = new Date();
+    var endDate = new Date();
+    endDate.setMonth(endDate.getMonth()+6)
     this.state = {
       subjects: ['קוסמות', 'שיקויים'], classes: ['א1', 'א2'],
       defaults: {
         sessionName: '',
-        minDate: '2019-01-01', maxDate: '2019-05-01', daysGap: 30, numOfHours: 1, isZeroHour: false
+        minDate: dateToStr(startDate), maxDate: dateToStr(endDate), daysGap: 30, numOfHours: 9, isZeroHour: false
       }
     };
 
@@ -159,7 +170,7 @@ class List extends React.Component {
   }
 
   componentDidMount() {
-    // this.props.dispatch(fetchSubjects);
+    // this.props.dispatch(fetchSubjects);gh
   }
 
 
