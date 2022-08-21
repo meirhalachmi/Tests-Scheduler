@@ -42,10 +42,9 @@ class SetupSession extends React.Component {
       classes: [this.state.classes],
       ...this.state.defaults
     }
-    axios.post(process.env.REACT_APP_API_URL + '/initsession', msg)
+    return axios.post(process.env.REACT_APP_API_URL + '/initsession', msg)
       .then(res => res.data)
       .then(res => this.props.dispatch(fetchSession(res.session)))
-      .then(() => this.props.history.push('/subjects'))
       .catch(console.error);
   }
 
@@ -140,7 +139,10 @@ class SetupSession extends React.Component {
                   setParentList={list => this.setState({subjects: list})}/>
           </Card.Body>
         </Card>
-        <Button onClick={this.sendSession}>שמור והמשך להגדרת אשכלות</Button>
+        <Button onClick={(e)=>{
+          this.sendSession(e)
+            .then(() => this.props.history.push('/subjects'))
+        }}>שמור והמשך להגדרת אשכלות</Button>
 
 
       </Container>
