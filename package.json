@@ -42,6 +42,7 @@
   },
   "scripts": {
     "start": "REACT_APP_API_URL=http://localhost:5000 react-scripts start",
+    "remotetest": "REACT_APP_API_URL=https://tests-scheduler-app.herokuapp.com react-scripts start",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build",
     "build": "REACT_APP_API_URL=https://tests-scheduler-app.herokuapp.com react-scripts build",
